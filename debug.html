@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>调试页面 - 英语小英雄</title>
+    <style>
+        body { font-family: Arial, sans-serif; padding: 20px; background: #f0f0f0; }
+        .section { background: white; padding: 15px; margin: 10px 0; border-radius: 8px; }
+        .pass { color: green; }
+        .fail { color: red; }
+        .info { color: blue; }
+        pre { background: #f5f5f5; padding: 10px; overflow-x: auto; }
+    </style>
+</head>
+<body>
+    <h1>英语小英雄 - 调试诊断</h1>
+    
+    <div class="section">
+        <h2>浏览器信息</h2>
+        <div id="browser-info"></div>
+    </div>
+    
+    <div class="section">
+        <h2>localStorage 状态</h2>
+        <div id="localstorage-info"></div>
+    </div>
+    
+    <div class="section">
+        <h2>脚本加载测试</h2>
+        <div id="script-test"></div>
+    </div>
+    
+    <div class="section">
+        <h2>错误日志</h2>
+        <pre id="error-log"></pre>
+    </div>
+
+    <script>
+        const log = [];
+        function addLog(msg, type = 'info') {
+            log.push({msg, type, time: new Date().toISOString()});
+            document.getElementById('error-log').textContent = log.map(l => 
+                `[${l.time}] ${l.type}: ${l.msg}`
+            ).join('\n');
+        }
+        
+        // 捕获错误
+        window.onerror = function(msg, url, line, col, error) {
+            addLog(`ERROR: ${msg} at ${url}:${line}:${col}`, 'fail');
+            if (error && error.stack) {
+                addLog(`STACK: ${error.stack}`, 'fail');
+            }
+        };
+        
+        window.addEventListener('unhandledrejection', function(event) {
+            addLog(`PROMISE ERROR: ${event.reason}`, 'fail');
+        });
+        
+        // 浏览器信息
+        document.getElementById('browser-info').innerHTML = `
+            <p>User Agent: ${navigator.userAgent}</p>
+            <p>Platform: ${navigator.platform}</p>
+            <p>Language: ${navigator.language}</p>
+            <p>Online: ${navigator.onLine}</p>
+        `;
+        
+        // localStorage测试
+        try {
+            const saved = localStorage.getItem('englishHeroState');
+            if (saved) {
+                const parsed = JSON.parse(saved);
+                document.getElementById('localstorage-info').innerHTML = `
+                    <p class="info">找到保存的状态:</p>
+                    <pre>${JSON.stringify(parsed, null, 2)}</pre>
+                `;
+                addLog('localStorage数据加载成功', 'pass');
+            } else {
+                document.getElementById('localstorage-info').innerHTML = 
+                    '<p class="info">没有找到保存的状态（首次访问）</p>';
+                addLog('localStorage为空', 'info');
+            }
+        } catch (e) {
+            document.getElementById('localstorage-info').innerHTML = 
+                `<p class="fail">localStorage错误: ${e.message}</p>`;
+            addLog(`localStorage错误: ${e.message}`, 'fail');
+        }
+        
+        // 测试加载courseData.js
+        addLog('开始加载courseData.js...', 'info');
+    </script>
+    
+    <script src="data/courseData.js"></script>
+    
+    <script>
+        addLog('courseData.js 加载完成', 'pass');
+        
+        // 检查COURSE_DATA
+        if (typeof COURSE_DATA !== 'undefined') {
+            addLog(`COURSE_DATA 已定义`, 'pass');
+            addLog(`单元数量: ${COURSE_DATA.units.length}`, 'info');
+            addLog(`单词单元数: ${COURSE_DATA.vocabulary.length}`, 'info');
+            addLog(`句型单元数: ${COURSE_DATA.sentences.length}`, 'info');
+            addLog(`阅读单元数: ${COURSE_DATA.readings.length}`, 'info');
+            addLog(`等级数: ${COURSE_DATA.levels.length}`, 'info');
+            addLog(`成就数: ${COURSE_DATA.achievements.length}`, 'info');
+            addLog(`每日任务数: ${COURSE_DATA.dailyTasks.length}`, 'info');
+        } else {
+            addLog('COURSE_DATA 未定义!', 'fail');
+        }
+        
+        // 测试加载app.js
+        addLog('开始加载app.js...', 'info');
+    </script>
+    
+    <script src="js/app.js"></script>
+    
+    <script>
+        addLog('app.js 加载完成', 'pass');
+        
+        // 检查EnglishHeroApp类
+        if (typeof EnglishHeroApp !== 'undefined') {
+            addLog('EnglishHeroApp 类已定义', 'pass');
+        } else {
+            addLog('EnglishHeroApp 类未定义!', 'fail');
+        }
+        
+        // 尝试创建实例
+        try {
+            if (typeof COURSE_DATA !== 'undefined' && typeof EnglishHeroApp !== 'undefined') {
+                const testApp = new EnglishHeroApp();
+                addLog('EnglishHeroApp 实例创建成功', 'pass');
+            }
+        } catch (e) {
+            addLog(`实例创建失败: ${e.message}`, 'fail');
+            addLog(`错误堆栈: ${e.stack}`, 'fail');
+        }
+    </script>
+</body>
+</html>
