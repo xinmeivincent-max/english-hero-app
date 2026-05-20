@@ -647,7 +647,9 @@ class EnglishHeroApp {
         
         // 为每个 part 创建可点击的标记
         question.parts.forEach((part, i) => {
-            const regex = new RegExp('(' + part.text.replace(/[.*+?^${}()|[\]\\]/g, '\\$&') + ')', 'gi');
+            // 转义特殊字符，避免正则表达式错误
+            const escapedText = part.text.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+            const regex = new RegExp('(' + escapedText + ')', 'gi');
             sentenceHtml = sentenceHtml.replace(regex, `<span class="analysis-word" data-correct="${part.correct}" data-index="${i}" onclick="app.selectWordPart(this)">$1</span>`);
         });
         
