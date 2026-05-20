@@ -2745,12 +2745,17 @@ class EnglishHeroApp {
         this.checkAchievement('word_50');
         
         this.saveState();
+        this.playSound('correct');
         
         // 检查是否是最后一个单词
         if (this.currentWordIndex >= unit.words.length - 1) {
             this.showWordCompletionMessage();
         } else {
-            this.nextWord();
+            // 翻转回正面再显示下一个
+            document.getElementById('flashcard').classList.remove('flipped');
+            setTimeout(() => {
+                this.nextWord();
+            }, 300);
         }
     }
 
@@ -2767,12 +2772,17 @@ class EnglishHeroApp {
         }
         
         this.saveState();
+        this.playSound('click');
         
         // 检查是否是最后一个单词
         if (this.currentWordIndex >= unit.words.length - 1) {
             this.showWordCompletionMessage();
         } else {
-            this.nextWord();
+            // 翻转回正面再显示下一个
+            document.getElementById('flashcard').classList.remove('flipped');
+            setTimeout(() => {
+                this.nextWord();
+            }, 300);
         }
     }
 
@@ -3675,5 +3685,5 @@ document.addEventListener('DOMContentLoaded', () => {
 </script>
 </body>
 
-<!-- deployed: 2026-05-20T12:30:00Z -->
+<!-- deployed: 2026-05-20T13:00:00Z -->
 </html>
