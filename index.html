@@ -1005,10 +1005,10 @@ body {
     border: none;
 }
 
-.memory-card.flipped {
-    background: var(--bg-card);
-    border: 2px solid var(--primary);
-    color: var(--text-primary);
+.memory-card.selected {
+    background: linear-gradient(135deg, #FFE082, #FFCA28);
+    border: 3px solid var(--primary);
+    transform: scale(1.05);
 }
 
 .memory-card.matched {
@@ -2938,7 +2938,7 @@ class EnglishHeroApp {
         document.getElementById('speed-best').textContent = this.state.gameScores.speed || '--';
     }
 
-    // 记忆游戏
+    // 记忆游戏 - 直接显示，点击配对
     startMemoryGame() {
         const gameArea = document.getElementById('game-area');
         if (!gameArea) return;
@@ -2950,8 +2950,8 @@ class EnglishHeroApp {
         // 创建卡片对（单词-意思）
         let cards = [];
         selectedWords.forEach((word, i) => {
-            cards.push({ id: i, type: 'word', content: word.word, pair: i });
-            cards.push({ id: i + 8, type: 'meaning', content: word.meaning, pair: i });
+            cards.push({ id: i * 2, type: 'word', content: word.word, pair: i });
+            cards.push({ id: i * 2 + 1, type: 'meaning', content: word.meaning, pair: i });
         });
         
         cards = this.shuffleArray(cards);
@@ -2959,7 +2959,7 @@ class EnglishHeroApp {
         this.gameState = {
             type: 'memory',
             cards: cards,
-            flipped: [],
+            selected: [],
             matched: [],
             moves: 0,
             startTime: Date.now()
@@ -2973,41 +2973,46 @@ class EnglishHeroApp {
         
         gameArea.innerHTML = `
             <div style="text-align: center; margin-bottom: 16px;">
-                <div class="game-score">记忆翻牌</div>
+                <div class="game-score">🧠 单词配对</div>
                 <div>步数: <span id="memory-moves">0</span></div>
+                <div style="font-size: 12px; color: var(--text-secondary); margin-top: 4px;">点击英文单词和对应的中文意思进行配对</div>
             </div>
             <div class="memory-grid" id="memory-grid"></div>
         `;
         
         const grid = document.getElementById('memory-grid');
-        grid.innerHTML = this.gameState.cards.map((card, index) => `
-            <button class="memory-card ${this.gameState.matched.includes(card.pair) ? 'matched' : ''} ${this.gameState.flipped.includes(index) ? 'flipped' : ''}" 
-                    onclick="app.flipMemoryCard(${index})"
-                    ${this.gameState.matched.includes(card.pair) ? 'disabled' : ''}>
-                ${this.gameState.flipped.includes(index) || this.gameState.matched.includes(card.pair) ? 
-                    `<span style="font-size: 14px; font-weight: 600;">${card.content}</span>` : '<span style="font-size: 28px;">❓</span>'}
+        grid.innerHTML = this.gameState.cards.map((card, index) => {
+            const isMatched = this.gameState.matched.includes(card.pair);
+            const isSelected = this.gameState.selected.includes(index);
+            
+            return `
+            <button class="memory-card ${isMatched ? 'matched' : ''} ${isSelected ? 'selected' : ''}" 
+                    onclick="app.selectMemoryCard(${index})"
+                    ${isMatched ? 'disabled' : ''}>
+                <span style="font-size: ${card.type === 'word' ? '16px' : '14px'}; font-weight: ${card.type === 'word' ? '700' : '600'};">${card.content}</span>
             </button>
-        `).join('');
+        `}).join('');
     }
 
-    flipMemoryCard(index) {
-        if (this.gameState.flipped.length >= 2) return;
-        if (this.gameState.flipped.includes(index)) return;
+    selectMemoryCard(index) {
+        // 如果已经选了2个，或者点击已选中的，返回
+        if (this.gameState.selected.length >= 2) return;
+        if (this.gameState.selected.includes(index)) return;
         
-        this.gameState.flipped.push(index);
+        this.gameState.selected.push(index);
         this.renderMemoryGame();
         
-        if (this.gameState.flipped.length === 2) {
+        if (this.gameState.selected.length === 2) {
             this.gameState.moves++;
             document.getElementById('memory-moves').textContent = this.gameState.moves;
             
-            const card1 = this.gameState.cards[this.gameState.flipped[0]];
-            const card2 = this.gameState.cards[this.gameState.flipped[1]];
+            const card1 = this.gameState.cards[this.gameState.selected[0]];
+            const card2 = this.gameState.cards[this.gameState.selected[1]];
             
             if (card1.pair === card2.pair) {
                 // 匹配成功
                 this.gameState.matched.push(card1.pair);
-                this.gameState.flipped = [];
+                this.gameState.selected = [];
                 
                 setTimeout(() => {
                     this.renderMemoryGame();
@@ -3018,11 +3023,11 @@ class EnglishHeroApp {
                     }
                 }, 500);
             } else {
-                // 匹配失败
+                // 匹配失败 - 显示错误动画后重置
                 setTimeout(() => {
-                    this.gameState.flipped = [];
+                    this.gameState.selected = [];
                     this.renderMemoryGame();
-                }, 1000);
+                }, 800);
             }
         }
     }
