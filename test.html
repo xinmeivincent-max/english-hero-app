@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>英语小英雄 - 测试</title>
+    <style>
+        body { font-family: Arial, sans-serif; padding: 20px; }
+        .loading { text-align: center; padding: 50px; }
+        .content { display: none; }
+        .content.active { display: block; }
+        button { padding: 10px 20px; margin: 5px; cursor: pointer; }
+    </style>
+</head>
+<body>
+    <div id="loading" class="loading">
+        <h1>🏃 加载中...</h1>
+        <p>请稍候</p>
+    </div>
+    
+    <div id="content" class="content">
+        <h1>✅ 英语小英雄</h1>
+        <p>网页正常工作！</p>
+        <button onclick="startGame()">开始游戏</button>
+        <div id="game-area"></div>
+    </div>
+    
+    <script>
+        // 最简化的测试代码
+        console.log('脚本开始执行');
+        
+        try {
+            // 模拟加载
+            setTimeout(function() {
+                console.log('加载完成');
+                document.getElementById('loading').style.display = 'none';
+                document.getElementById('content').classList.add('active');
+            }, 1500);
+            
+            function startGame() {
+                document.getElementById('game-area').innerHTML = '<p>🎮 游戏开始！</p>';
+            }
+            
+            console.log('脚本执行成功');
+        } catch (e) {
+            console.error('错误:', e);
+            alert('发生错误: ' + e.message);
+        }
+    </script>
+</body>
+</html>
