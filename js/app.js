@@ -13,8 +13,74 @@ class EnglishHeroApp {
         this.currentPattern = null;
         this.currentReading = null;
         this.gameState = {};
+        this.audioContext = null;
+        this.readingAnswers = [];
+        this.readingTimer = null;
+        this.speedTimer = null;
         
         this.init();
+    }
+
+    // 音效播放
+    playSound(type) {
+        try {
+            if (!this.audioContext) {
+                this.audioContext = new (window.AudioContext || window.webkitAudioContext)();
+            }
+            
+            const ctx = this.audioContext;
+            const oscillator = ctx.createOscillator();
+            const gainNode = ctx.createGain();
+            
+            oscillator.connect(gainNode);
+            gainNode.connect(ctx.destination);
+            
+            switch(type) {
+                case 'correct':
+                    oscillator.frequency.setValueAtTime(523.25, ctx.currentTime); // C5
+                    oscillator.frequency.setValueAtTime(659.25, ctx.currentTime + 0.1); // E5
+                    gainNode.gain.setValueAtTime(0.3, ctx.currentTime);
+                    gainNode.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.3);
+                    oscillator.start(ctx.currentTime);
+                    oscillator.stop(ctx.currentTime + 0.3);
+                    break;
+                case 'wrong':
+                    oscillator.frequency.setValueAtTime(200, ctx.currentTime);
+                    gainNode.gain.setValueAtTime(0.3, ctx.currentTime);
+                    gainNode.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.4);
+                    oscillator.start(ctx.currentTime);
+                    oscillator.stop(ctx.currentTime + 0.4);
+                    break;
+                case 'click':
+                    oscillator.frequency.setValueAtTime(800, ctx.currentTime);
+                    gainNode.gain.setValueAtTime(0.1, ctx.currentTime);
+                    gainNode.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.1);
+                    oscillator.start(ctx.currentTime);
+                    oscillator.stop(ctx.currentTime + 0.1);
+                    break;
+                case 'match':
+                    oscillator.frequency.setValueAtTime(440, ctx.currentTime);
+                    oscillator.frequency.setValueAtTime(554, ctx.currentTime + 0.1);
+                    oscillator.frequency.setValueAtTime(659, ctx.currentTime + 0.2);
+                    gainNode.gain.setValueAtTime(0.3, ctx.currentTime);
+                    gainNode.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.4);
+                    oscillator.start(ctx.currentTime);
+                    oscillator.stop(ctx.currentTime + 0.4);
+                    break;
+                case 'complete':
+                    oscillator.frequency.setValueAtTime(523, ctx.currentTime);
+                    oscillator.frequency.setValueAtTime(659, ctx.currentTime + 0.15);
+                    oscillator.frequency.setValueAtTime(784, ctx.currentTime + 0.3);
+                    oscillator.frequency.setValueAtTime(1047, ctx.currentTime + 0.45);
+                    gainNode.gain.setValueAtTime(0.3, ctx.currentTime);
+                    gainNode.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.8);
+                    oscillator.start(ctx.currentTime);
+                    oscillator.stop(ctx.currentTime + 0.8);
+                    break;
+            }
+        } catch (e) {
+            // 音效播放失败不影响功能
+        }
     }
 
     // 初始化
@@ -44,7 +110,7 @@ class EnglishHeroApp {
             completedReadings: [],
             completedPatterns: [],
             achievements: [],
-            dailyTasks: this.generateDailyTasks(),
+            dailyTasks: [],
             dailyProgress: {},
             mistakes: [],
             gameScores: {
@@ -85,6 +151,11 @@ class EnglishHeroApp {
     checkDailyReset() {
         const today = new Date().toDateString();
         const lastDate = this.state.lastStudyDate;
+        
+        // 如果dailyTasks为空，生成新的任务
+        if (!this.state.dailyTasks || this.state.dailyTasks.length === 0) {
+            this.state.dailyTasks = this.generateDailyTasks();
+        }
         
         if (lastDate) {
             const last = new Date(lastDate);
@@ -333,6 +404,7 @@ class EnglishHeroApp {
 
     // 显示成就弹窗
     showAchievement(achievement) {
+        this.playSound('complete');
         const popup = document.getElementById('achievement-popup');
         document.getElementById('achievement-name').textContent = achievement.name;
         document.getElementById('achievement-desc').textContent = achievement.desc;
@@ -347,6 +419,7 @@ class EnglishHeroApp {
 
     // 显示升级弹窗
     showLevelUp(level) {
+        this.playSound('complete');
         const popup = document.getElementById('levelup-popup');
         document.getElementById('levelup-text').textContent = 
             `你升级到了 ${level.icon} ${level.name}！`;
@@ -436,7 +509,18 @@ class EnglishHeroApp {
         this.checkAchievement('word_50');
         
         this.saveState();
-        this.nextWord();
+        this.playSound('correct');
+        
+        // 检查是否是最后一个单词
+        if (this.currentWordIndex >= unit.words.length - 1) {
+            this.showWordCompletionMessage();
+        } else {
+            // 翻转回正面再显示下一个
+            document.getElementById('flashcard').classList.remove('flipped');
+            setTimeout(() => {
+                this.nextWord();
+            }, 300);
+        }
     }
 
     markUnknown() {
@@ -452,7 +536,33 @@ class EnglishHeroApp {
         }
         
         this.saveState();
-        this.nextWord();
+        this.playSound('click');
+        
+        // 检查是否是最后一个单词
+        if (this.currentWordIndex >= unit.words.length - 1) {
+            this.showWordCompletionMessage();
+        } else {
+            // 翻转回正面再显示下一个
+            document.getElementById('flashcard').classList.remove('flipped');
+            setTimeout(() => {
+                this.nextWord();
+            }, 300);
+        }
+    }
+
+    showWordCompletionMessage() {
+        const unit = this.data.vocabulary[this.currentUnit];
+        const flashcard = document.getElementById('flashcard');
+        if (flashcard) {
+            flashcard.innerHTML = `
+                <div style="text-align: center; padding: 40px;">
+                    <div style="font-size: 60px; margin-bottom: 16px;">🎉</div>
+                    <h3>单元完成！</h3>
+                    <p>已完成 ${unit.unitName} 的所有单词</p>
+                    <button class="btn-primary" onclick="app.navigate('words')" style="margin-top: 16px;">返回单词列表</button>
+                </div>
+            `;
+        }
     }
 
     playWordSound() {
@@ -532,27 +642,16 @@ class EnglishHeroApp {
         const container = document.getElementById('sentence-words');
         if (!container) return;
         
-        // 将句子拆分成单词
-        const words = question.sentence.split(/\s+/);
-        let wordIndex = 0;
+        // 创建句子显示，将可点击的部分高亮
+        let sentenceHtml = question.sentence;
         
-        container.innerHTML = words.map((word, i) => {
-            const cleanWord = word.replace(/[.,!?;:]$/, '');
-            const punctuation = word.match(/[.,!?;:]$/)?.[0] || '';
-            
-            // 检查是否是题目中定义的部件
-            const part = question.parts.find(p => 
-                question.sentence.includes(p.text) && 
-                question.sentence.indexOf(p.text) === question.sentence.indexOf(cleanWord)
-            );
-            
-            if (part && wordIndex === 0) {
-                wordIndex++;
-                return `<span class="analysis-word" data-correct="${part.correct}" onclick="app.selectWordPart(this)">${word}</span>`;
-            }
-            
-            return `<span style="padding: 4px;">${word}</span>`;
-        }).join(' ');
+        // 为每个 part 创建可点击的标记
+        question.parts.forEach((part, i) => {
+            const regex = new RegExp('(' + part.text.replace(/[.*+?^${}()|[\]\\]/g, '\\$&') + ')', 'gi');
+            sentenceHtml = sentenceHtml.replace(regex, `<span class="analysis-word" data-correct="${part.correct}" data-index="${i}" onclick="app.selectWordPart(this)">$1</span>`);
+        });
+        
+        container.innerHTML = `<div style="line-height: 2; font-size: 18px;">${sentenceHtml}</div>`;
         
         // 渲染选项
         const optionsContainer = document.getElementById('analysis-options');
@@ -584,11 +683,13 @@ class EnglishHeroApp {
         const correct = this.selectedWord.dataset.correct;
         
         if (type === correct) {
+            this.playSound('correct');
             this.selectedWord.classList.add('correct');
             this.selectedWord.classList.remove('selected');
             this.addXP(10);
             this.updateTaskProgress('sentence');
         } else {
+            this.playSound('wrong');
             this.selectedWord.classList.add('wrong');
             setTimeout(() => {
                 this.selectedWord.classList.remove('wrong');
@@ -683,8 +784,10 @@ class EnglishHeroApp {
         
         this.state.totalQuestions++;
         if (correct) {
+            this.playSound('correct');
             this.state.totalCorrect++;
         } else {
+            this.playSound('wrong');
             // 添加到错题本
             this.state.mistakes.push({
                 type: 'reading',
@@ -735,6 +838,8 @@ class EnglishHeroApp {
         this.checkAchievement('reading_hero');
         this.saveState();
         
+        this.playSound('complete');
+        
         // 显示结果
         const questionsContainer = document.getElementById('passage-questions');
         questionsContainer.innerHTML = `
@@ -779,7 +884,7 @@ class EnglishHeroApp {
         document.getElementById('speed-best').textContent = this.state.gameScores.speed || '--';
     }
 
-    // 记忆游戏
+    // 记忆游戏 - 直接显示，点击配对
     startMemoryGame() {
         const gameArea = document.getElementById('game-area');
         if (!gameArea) return;
@@ -791,8 +896,8 @@ class EnglishHeroApp {
         // 创建卡片对（单词-意思）
         let cards = [];
         selectedWords.forEach((word, i) => {
-            cards.push({ id: i, type: 'word', content: word.word, pair: i });
-            cards.push({ id: i + 8, type: 'meaning', content: word.meaning, pair: i });
+            cards.push({ id: i * 2, type: 'word', content: word.word, pair: i });
+            cards.push({ id: i * 2 + 1, type: 'meaning', content: word.meaning, pair: i });
         });
         
         cards = this.shuffleArray(cards);
@@ -800,7 +905,7 @@ class EnglishHeroApp {
         this.gameState = {
             type: 'memory',
             cards: cards,
-            flipped: [],
+            selected: [],
             matched: [],
             moves: 0,
             startTime: Date.now()
@@ -814,56 +919,64 @@ class EnglishHeroApp {
         
         gameArea.innerHTML = `
             <div style="text-align: center; margin-bottom: 16px;">
-                <div class="game-score">记忆翻牌</div>
+                <div class="game-score">🧠 单词配对</div>
                 <div>步数: <span id="memory-moves">0</span></div>
+                <div style="font-size: 12px; color: var(--text-secondary); margin-top: 4px;">点击英文单词和对应的中文意思进行配对</div>
             </div>
             <div class="memory-grid" id="memory-grid"></div>
         `;
         
         const grid = document.getElementById('memory-grid');
-        grid.innerHTML = this.gameState.cards.map((card, index) => `
-            <button class="memory-card ${this.gameState.matched.includes(card.pair) ? 'matched' : ''} ${this.gameState.flipped.includes(index) ? 'flipped' : ''}" 
-                    onclick="app.flipMemoryCard(${index})"
-                    ${this.gameState.matched.includes(card.pair) ? 'disabled' : ''}>
-                ${this.gameState.flipped.includes(index) || this.gameState.matched.includes(card.pair) ? 
-                    (card.type === 'word' ? card.content : card.content) : '❓'}
+        grid.innerHTML = this.gameState.cards.map((card, index) => {
+            const isMatched = this.gameState.matched.includes(card.pair);
+            const isSelected = this.gameState.selected.includes(index);
+            
+            return `
+            <button class="memory-card ${isMatched ? 'matched' : ''} ${isSelected ? 'selected' : ''}" 
+                    onclick="app.selectMemoryCard(${index})"
+                    ${isMatched ? 'disabled' : ''}>
+                <span style="font-size: ${card.type === 'word' ? '16px' : '14px'}; font-weight: ${card.type === 'word' ? '700' : '600'};">${card.content}</span>
             </button>
-        `).join('');
+        `}).join('');
     }
 
-    flipMemoryCard(index) {
-        if (this.gameState.flipped.length >= 2) return;
-        if (this.gameState.flipped.includes(index)) return;
+    selectMemoryCard(index) {
+        // 如果已经选了2个，或者点击已选中的，返回
+        if (this.gameState.selected.length >= 2) return;
+        if (this.gameState.selected.includes(index)) return;
         
-        this.gameState.flipped.push(index);
+        this.gameState.selected.push(index);
         this.renderMemoryGame();
         
-        if (this.gameState.flipped.length === 2) {
+        if (this.gameState.selected.length === 2) {
             this.gameState.moves++;
             document.getElementById('memory-moves').textContent = this.gameState.moves;
             
-            const card1 = this.gameState.cards[this.gameState.flipped[0]];
-            const card2 = this.gameState.cards[this.gameState.flipped[1]];
+            const card1 = this.gameState.cards[this.gameState.selected[0]];
+            const card2 = this.gameState.cards[this.gameState.selected[1]];
             
             if (card1.pair === card2.pair) {
                 // 匹配成功
+                this.playSound('match');
                 this.gameState.matched.push(card1.pair);
-                this.gameState.flipped = [];
+                this.gameState.selected = [];
                 
                 setTimeout(() => {
                     this.renderMemoryGame();
                     
                     // 检查是否全部匹配
                     if (this.gameState.matched.length === 8) {
+                        this.playSound('complete');
                         this.endMemoryGame();
                     }
                 }, 500);
             } else {
-                // 匹配失败
+                // 匹配失败 - 显示错误动画后重置
+                this.playSound('wrong');
                 setTimeout(() => {
-                    this.gameState.flipped = [];
+                    this.gameState.selected = [];
                     this.renderMemoryGame();
-                }, 1000);
+                }, 800);
             }
         }
     }
@@ -880,6 +993,8 @@ class EnglishHeroApp {
         this.updateTaskProgress('word');
         this.checkAchievement('memory_king');
         this.saveState();
+        
+        this.playSound('complete');
         
         const gameArea = document.getElementById('game-area');
         gameArea.innerHTML = `
@@ -958,6 +1073,7 @@ class EnglishHeroApp {
         const correctWord = this.gameState.words[this.gameState.currentIndex].word.toLowerCase();
         
         if (userAnswer === correctWord) {
+            this.playSound('correct');
             input.classList.add('correct');
             this.gameState.correct++;
             this.gameState.streak++;
@@ -967,6 +1083,7 @@ class EnglishHeroApp {
                 this.checkAchievement('spelling_bee');
             }
         } else {
+            this.playSound('wrong');
             input.classList.add('wrong');
             this.gameState.streak = 0;
             
@@ -1002,6 +1119,8 @@ class EnglishHeroApp {
         this.addXP(score);
         this.updateTaskProgress('spelling');
         this.saveState();
+        
+        this.playSound('complete');
         
         const gameArea = document.getElementById('game-area');
         gameArea.innerHTML = `
@@ -1044,7 +1163,13 @@ class EnglishHeroApp {
 
     renderSpeedGame() {
         const gameArea = document.getElementById('game-area');
+        if (!gameArea) return;
+        
         const word = this.gameState.words[this.gameState.currentIndex];
+        if (!word) {
+            this.endSpeedGame();
+            return;
+        }
         
         // 生成选项（1个正确，3个错误）
         const options = [word.meaning];
@@ -1056,14 +1181,17 @@ class EnglishHeroApp {
         gameArea.innerHTML = `
             <div style="text-align: center;">
                 <div class="game-timer" id="speed-timer">${this.gameState.timeLeft}</div>
-                <div class="game-score">${word.word}</div>
-                <div style="margin-bottom: 16px;">选择正确的中文意思：</div>
-                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+                <div class="game-score" style="font-size: 32px; margin: 20px 0;">${word.word}</div>
+                <div style="margin-bottom: 16px; color: var(--text-secondary);">选择正确的中文意思：</div>
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; max-width: 400px; margin: 0 auto;">
                     ${shuffledOptions.map(option => `
-                        <button class="game-btn" onclick="app.answerSpeedQuestion('${option}')" style="margin: 0;">
+                        <button class="game-btn" onclick="app.answerSpeedGame(this.dataset.answer)" data-answer="${option.replace(/"/g, '&quot;')}" style="margin: 0; padding: 15px; font-size: 16px;">
                             ${option}
                         </button>
                     `).join('')}
+                </div>
+                <div style="margin-top: 20px;">
+                    <span>进度: ${this.gameState.currentIndex + 1} / ${this.gameState.words.length}</span>
                 </div>
             </div>
         `;
@@ -1073,8 +1201,11 @@ class EnglishHeroApp {
         const word = this.gameState.words[this.gameState.currentIndex];
         
         if (answer === word.meaning) {
+            this.playSound('correct');
             this.gameState.correct++;
             this.addXP(5);
+        } else {
+            this.playSound('wrong');
         }
         
         this.gameState.currentIndex++;
@@ -1096,6 +1227,8 @@ class EnglishHeroApp {
         
         this.addXP(score);
         this.saveState();
+        
+        this.playSound('complete');
         
         const gameArea = document.getElementById('game-area');
         gameArea.innerHTML = `
