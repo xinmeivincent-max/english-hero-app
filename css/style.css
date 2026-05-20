@@ -998,9 +998,10 @@ body {
     border: none;
 }
 
-.memory-card.flipped {
-    background: var(--bg-card);
-    transform: rotateY(180deg);
+.memory-card.selected {
+    background: linear-gradient(135deg, #FFE082, #FFCA28);
+    border: 3px solid var(--primary);
+    transform: scale(1.05);
 }
 
 .memory-card.matched {
@@ -1374,4 +1375,89 @@ body {
 /* 隐藏 */
 .hidden {
     display: none !important;
+}
+
+/* ============================================
+   响应式布局优化 - 适配手机和平板
+   ============================================ */
+
+/* 小屏幕手机优化 */
+@media (max-width: 375px) {
+    :root {
+        --header-height: 50px;
+        --nav-height: 60px;
+    }
+    
+    .memory-grid {
+        grid-template-columns: repeat(4, 1fr) !important;
+        gap: 6px !important;
+    }
+    
+    .memory-card {
+        font-size: 12px !important;
+    }
+    
+    .memory-card span {
+        font-size: 11px !important;
+    }
+    
+    .game-score {
+        font-size: 20px !important;
+    }
+    
+    .action-grid {
+        grid-template-columns: 1fr 1fr !important;
+        gap: 8px !important;
+    }
+    
+    .flashcard {
+        height: 220px !important;
+    }
+    
+    .word-text {
+        font-size: 24px !important;
+    }
+    
+    .word-meaning {
+        font-size: 22px !important;
+    }
+}
+
+/* 平板优化 */
+@media (min-width: 768px) and (max-width: 1024px) {
+    .memory-grid {
+        grid-template-columns: repeat(4, 1fr) !important;
+        max-width: 600px;
+        margin: 0 auto;
+    }
+    
+    .action-grid {
+        grid-template-columns: repeat(4, 1fr) !important;
+    }
+}
+
+/* 大屏幕优化 */
+@media (min-width: 1025px) {
+    .app {
+        max-width: 900px;
+        margin: 0 auto;
+        box-shadow: var(--shadow-lg);
+    }
+    
+    .memory-grid {
+        grid-template-columns: repeat(4, 1fr) !important;
+        max-width: 500px;
+        margin: 0 auto;
+    }
+}
+
+/* 横屏模式优化 */
+@media (max-height: 500px) and (orientation: landscape) {
+    .flashcard {
+        height: 180px !important;
+    }
+    
+    .memory-grid {
+        grid-template-columns: repeat(8, 1fr) !important;
+    }
 }
