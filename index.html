@@ -1783,6 +1783,31 @@ body {
         </div>
     </div>
 
+    <!-- 错误提示 -->
+    <div id="error-screen" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #ff6b6b; color: white; z-index: 9999; padding: 20px; box-sizing: border-box;">
+        <h2>😢 出错了</h2>
+        <p id="error-message"></p>
+        <button onclick="location.reload()" style="padding: 10px 20px; font-size: 16px; margin-top: 20px;">刷新页面</button>
+    </div>
+
+    <script>
+        // 全局错误捕获
+        window.onerror = function(msg, url, line, col, error) {
+            console.error('错误:', msg, '行:', line, '列:', col);
+            document.getElementById('error-message').textContent = msg + ' (行:' + line + ')';
+            document.getElementById('error-screen').style.display = 'block';
+            document.getElementById('loading-screen').style.display = 'none';
+            return false;
+        };
+        
+        window.addEventListener('unhandledrejection', function(event) {
+            console.error('未处理的Promise错误:', event.reason);
+            document.getElementById('error-message').textContent = 'Promise错误: ' + event.reason;
+            document.getElementById('error-screen').style.display = 'block';
+            document.getElementById('loading-screen').style.display = 'none';
+        });
+    </script>
+
     <!-- 引入数据 -->
     <script>
 // ============================================
@@ -3693,5 +3718,5 @@ document.addEventListener('DOMContentLoaded', () => {
 </script>
 </body>
 
-<!-- deployed: 2026-05-20T14:00:00Z -->
+<!-- deployed: 2026-05-20T15:00:00Z -->
 </html>
