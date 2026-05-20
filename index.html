@@ -1007,10 +1007,8 @@ body {
 
 .memory-card.flipped {
     background: var(--bg-card);
-    transform: rotateY(0deg);
     border: 2px solid var(--primary);
-    direction: ltr;
-    unicode-bidi: normal;
+    color: var(--text-primary);
 }
 
 .memory-card.matched {
@@ -2987,7 +2985,7 @@ class EnglishHeroApp {
                     onclick="app.flipMemoryCard(${index})"
                     ${this.gameState.matched.includes(card.pair) ? 'disabled' : ''}>
                 ${this.gameState.flipped.includes(index) || this.gameState.matched.includes(card.pair) ? 
-                    `<span style="font-size: 14px; direction: ltr; unicode-bidi: normal; display: inline-block;">${card.content}</span>` : '❓'}
+                    `<span style="font-size: 14px; font-weight: 600;">${card.content}</span>` : '<span style="font-size: 28px;">❓</span>'}
             </button>
         `).join('');
     }
