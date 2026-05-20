@@ -1,0 +1,326 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>英语小英雄 - Reading Explorer 3 闯关学习</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+</head>
+<body>
+    <!-- 加载画面 -->
+    <div id="loading-screen" class="loading-screen">
+        <div class="loading-content">
+            <div class="loading-mascot">⚽</div>
+            <h2>英语小英雄</h2>
+            <p>正在加载你的冒险...</p>
+            <div class="loading-bar">
+                <div class="loading-progress"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 主应用容器 -->
+    <div id="app" class="app hidden">
+        <!-- 顶部导航栏 -->
+        <header class="header">
+            <div class="header-left">
+                <div class="logo">
+                    <span class="logo-icon">⚽</span>
+                    <span class="logo-text">英语小英雄</span>
+                </div>
+            </div>
+            <div class="header-center">
+                <div class="level-badge" id="level-badge">
+                    <span class="level-icon">🥉</span>
+                    <span class="level-name">青铜学员</span>
+                </div>
+            </div>
+            <div class="header-right">
+                <div class="xp-display">
+                    <span class="xp-icon">⭐</span>
+                    <span class="xp-value" id="xp-value">0</span>
+                </div>
+                <div class="streak-display" id="streak-display">
+                    <span class="streak-icon">🔥</span>
+                    <span class="streak-value" id="streak-value">0</span>
+                </div>
+            </div>
+        </header>
+
+        <!-- 主内容区 -->
+        <main class="main-content">
+            <!-- 首页/仪表盘 -->
+            <section id="page-home" class="page active">
+                <div class="hero-section">
+                    <div class="hero-mascot">🦸</div>
+                    <h1>欢迎回来，小英雄！</h1>
+                    <p class="hero-subtitle">今天也要继续你的英语冒险哦！</p>
+                    <div class="daily-progress" id="daily-progress">
+                        <h3>📋 今日任务</h3>
+                        <div class="task-list" id="task-list"></div>
+                    </div>
+                </div>
+
+                <div class="quick-actions">
+                    <h2>🎮 快速开始</h2>
+                    <div class="action-grid">
+                        <button class="action-card" onclick="app.navigate('words')">
+                            <span class="action-icon">📚</span>
+                            <span class="action-title">单词学习</span>
+                            <span class="action-desc">闪卡 + 拼写 + 记忆</span>
+                        </button>
+                        <button class="action-card" onclick="app.navigate('sentences')">
+                            <span class="action-icon">🔍</span>
+                            <span class="action-title">句型分析</span>
+                            <span class="action-desc">拆解句子结构</span>
+                        </button>
+                        <button class="action-card" onclick="app.navigate('reading')">
+                            <span class="action-icon">📖</span>
+                            <span class="action-title">阅读闯关</span>
+                            <span class="action-desc">读完做题得分</span>
+                        </button>
+                        <button class="action-card" onclick="app.navigate('games')">
+                            <span class="action-icon">🎲</span>
+                            <span class="action-title">游戏中心</span>
+                            <span class="action-desc">记忆 + 拼写游戏</span>
+                        </button>
+                    </div>
+                </div>
+
+                <div class="stats-section">
+                    <h2>📊 学习统计</h2>
+                    <div class="stats-grid">
+                        <div class="stat-card">
+                            <span class="stat-icon">📚</span>
+                            <span class="stat-value" id="stat-words">0</span>
+                            <span class="stat-label">已学单词</span>
+                        </div>
+                        <div class="stat-card">
+                            <span class="stat-icon">📖</span>
+                            <span class="stat-value" id="stat-reading">0</span>
+                            <span class="stat-label">阅读篇数</span>
+                        </div>
+                        <div class="stat-card">
+                            <span class="stat-icon">🎯</span>
+                            <span class="stat-value" id="stat-accuracy">0%</span>
+                            <span class="stat-label">正确率</span>
+                        </div>
+                        <div class="stat-card">
+                            <span class="stat-icon">🏆</span>
+                            <span class="stat-value" id="stat-achievements">0</span>
+                            <span class="stat-label">获得成就</span>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 单词学习页面 -->
+            <section id="page-words" class="page">
+                <div class="page-header">
+                    <button class="back-btn" onclick="app.navigate('home')">← 返回</button>
+                    <h2>📚 单词学习</h2>
+                </div>
+                <div class="unit-selector" id="unit-selector"></div>
+                <div class="word-learning-area" id="word-learning-area">
+                    <div class="flashcard-container" id="flashcard-container">
+                        <div class="flashcard" id="flashcard">
+                            <div class="flashcard-front">
+                                <span class="word-image" id="word-image">⚽</span>
+                                <span class="word-text" id="word-text">soccer</span>
+                                <span class="word-phonetic" id="word-phonetic">/ˈsɒkə/</span>
+                                <button class="play-sound-btn" onclick="app.playWordSound()">🔊 发音</button>
+                            </div>
+                            <div class="flashcard-back">
+                                <span class="word-meaning" id="word-meaning">足球</span>
+                                <span class="word-example" id="word-example">I love playing soccer.</span>
+                            </div>
+                        </div>
+                        <div class="flashcard-controls">
+                            <button class="btn-flip" onclick="app.flipCard()">🔄 翻转</button>
+                            <button class="btn-prev" onclick="app.prevWord()">⬅️ 上一个</button>
+                            <button class="btn-next" onclick="app.nextWord()">下一个 ➡️</button>
+                            <button class="btn-known" onclick="app.markKnown()">✅ 认识</button>
+                            <button class="btn-unknown" onclick="app.markUnknown()">❌ 不认识</button>
+                        </div>
+                    </div>
+                    <div class="word-progress">
+                        <span id="word-progress-text">1 / 10</span>
+                    </div>
+                </div>
+                <div class="word-games">
+                    <h3>🎮 单词游戏</h3>
+                    <button class="game-btn" onclick="app.startSpellingGame()">✍️ 拼写挑战</button>
+                    <button class="game-btn" onclick="app.startMemoryGame()">🧠 记忆翻牌</button>
+                </div>
+            </section>
+
+            <!-- 句型分析页面 -->
+            <section id="page-sentences" class="page">
+                <div class="page-header">
+                    <button class="back-btn" onclick="app.navigate('home')">← 返回</button>
+                    <h2>🔍 句型分析</h2>
+                </div>
+                <div class="pattern-list" id="pattern-list"></div>
+                <div class="sentence-practice" id="sentence-practice">
+                    <div class="practice-area" id="practice-area">
+                        <h3 id="practice-title">选择一个句型开始练习</h3>
+                        <div class="sentence-display" id="sentence-display"></div>
+                        <div class="analysis-area" id="analysis-area"></div>
+                        <div class="analysis-feedback" id="analysis-feedback"></div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 阅读闯关页面 -->
+            <section id="page-reading" class="page">
+                <div class="page-header">
+                    <button class="back-btn" onclick="app.navigate('home')">← 返回</button>
+                    <h2>📖 阅读闯关</h2>
+                </div>
+                <div class="reading-levels" id="reading-levels"></div>
+                <div class="reading-content" id="reading-content">
+                    <div class="passage-area" id="passage-area">
+                        <h3 id="passage-title">选择一篇文章开始阅读</h3>
+                        <div class="passage-text" id="passage-text"></div>
+                        <div class="passage-questions" id="passage-questions"></div>
+                        <div class="reading-timer" id="reading-timer"></div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 游戏中心页面 -->
+            <section id="page-games" class="page">
+                <div class="page-header">
+                    <button class="back-btn" onclick="app.navigate('home')">← 返回</button>
+                    <h2>🎮 游戏中心</h2>
+                </div>
+                <div class="games-grid">
+                    <div class="game-card" onclick="app.startMemoryGame()">
+                        <div class="game-icon">🧠</div>
+                        <h3>记忆翻牌</h3>
+                        <p>翻开卡片，找到匹配的单词对</p>
+                        <div class="game-stats">最佳: <span id="memory-best">--</span></div>
+                    </div>
+                    <div class="game-card" onclick="app.startSpellingGame()">
+                        <div class="game-icon">✍️</div>
+                        <h3>拼写挑战</h3>
+                        <p>听发音，拼写出正确的单词</p>
+                        <div class="game-stats">最佳: <span id="spelling-best">--</span></div>
+                    </div>
+                    <div class="game-card" onclick="app.startSpeedGame()">
+                        <div class="game-icon">⚡</div>
+                        <h3>极速单词</h3>
+                        <p>限时内尽可能多地识别单词</p>
+                        <div class="game-stats">最佳: <span id="speed-best">--</span></div>
+                    </div>
+                </div>
+                <div class="game-area" id="game-area"></div>
+            </section>
+
+            <!-- 成就页面 -->
+            <section id="page-achievements" class="page">
+                <div class="page-header">
+                    <button class="back-btn" onclick="app.navigate('home')">← 返回</button>
+                    <h2>🏆 成就殿堂</h2>
+                </div>
+                <div class="achievements-grid" id="achievements-grid"></div>
+            </section>
+
+            <!-- 错题本页面 -->
+            <section id="page-mistakes" class="page">
+                <div class="page-header">
+                    <button class="back-btn" onclick="app.navigate('home')">← 返回</button>
+                    <h2>📝 错题本</h2>
+                </div>
+                <div class="mistakes-list" id="mistakes-list"></div>
+                <div class="mistake-review" id="mistake-review">
+                    <button class="btn-primary" onclick="app.reviewMistakes()">🔄 复习错题</button>
+                </div>
+            </section>
+
+            <!-- 个人信息页面 -->
+            <section id="page-profile" class="page">
+                <div class="page-header">
+                    <button class="back-btn" onclick="app.navigate('home')">← 返回</button>
+                    <h2>👤 个人中心</h2>
+                </div>
+                <div class="profile-card">
+                    <div class="profile-avatar" id="profile-avatar">🦸</div>
+                    <div class="profile-info">
+                        <h3 id="profile-name">英语小英雄</h3>
+                        <div class="profile-level" id="profile-level">
+                            <span class="level-badge-large">🥉 青铜学员</span>
+                        </div>
+                        <div class="xp-bar-container">
+                            <div class="xp-bar" id="xp-bar">
+                                <div class="xp-progress" id="xp-progress"></div>
+                            </div>
+                            <span class="xp-text" id="xp-text">0 / 500 XP</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="profile-stats-detail">
+                    <h3>📊 详细统计</h3>
+                    <div class="detail-stats" id="detail-stats"></div>
+                </div>
+                <div class="settings">
+                    <h3>⚙️ 设置</h3>
+                    <button class="btn-danger" onclick="app.resetProgress()">🗑️ 重置进度</button>
+                </div>
+            </section>
+        </main>
+
+        <!-- 底部导航 -->
+        <nav class="bottom-nav">
+            <button class="nav-item active" onclick="app.navigate('home')">
+                <span class="nav-icon">🏠</span>
+                <span class="nav-label">首页</span>
+            </button>
+            <button class="nav-item" onclick="app.navigate('words')">
+                <span class="nav-icon">📚</span>
+                <span class="nav-label">单词</span>
+            </button>
+            <button class="nav-item" onclick="app.navigate('reading')">
+                <span class="nav-icon">📖</span>
+                <span class="nav-label">阅读</span>
+            </button>
+            <button class="nav-item" onclick="app.navigate('games')">
+                <span class="nav-icon">🎮</span>
+                <span class="nav-label">游戏</span>
+            </button>
+            <button class="nav-item" onclick="app.navigate('profile')">
+                <span class="nav-icon">👤</span>
+                <span class="nav-label">我的</span>
+            </button>
+        </nav>
+
+        <!-- 成就弹窗 -->
+        <div id="achievement-popup" class="achievement-popup hidden">
+            <div class="achievement-content">
+                <div class="achievement-icon">🏆</div>
+                <h3>获得成就！</h3>
+                <p id="achievement-name">成就名称</p>
+                <p id="achievement-desc">成就描述</p>
+                <button onclick="app.closeAchievement()">太棒了！</button>
+            </div>
+        </div>
+
+        <!-- 等级提升弹窗 -->
+        <div id="levelup-popup" class="levelup-popup hidden">
+            <div class="levelup-content">
+                <div class="levelup-animation">⬆️</div>
+                <h3>等级提升！</h3>
+                <p id="levelup-text">你升级到了白银战士！</p>
+                <button onclick="app.closeLevelUp()">继续加油！</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 引入数据 -->
+    <script src="data/courseData.js"></script>
+    <!-- 引入主应用逻辑 -->
+    <script src="js/app.js"></script>
+</body>
+</html>
