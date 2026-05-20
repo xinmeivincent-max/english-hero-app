@@ -2258,6 +2258,9 @@ class EnglishHeroApp {
         this.currentReading = null;
         this.gameState = {};
         this.audioContext = null;
+        this.readingAnswers = [];
+        this.readingTimer = null;
+        this.speedTimer = null;
         
         this.init();
     }
@@ -2351,7 +2354,7 @@ class EnglishHeroApp {
             completedReadings: [],
             completedPatterns: [],
             achievements: [],
-            dailyTasks: this.generateDailyTasks(),
+            dailyTasks: [],
             dailyProgress: {},
             mistakes: [],
             gameScores: {
@@ -2392,6 +2395,11 @@ class EnglishHeroApp {
     checkDailyReset() {
         const today = new Date().toDateString();
         const lastDate = this.state.lastStudyDate;
+        
+        // 如果dailyTasks为空，生成新的任务
+        if (!this.state.dailyTasks || this.state.dailyTasks.length === 0) {
+            this.state.dailyTasks = this.generateDailyTasks();
+        }
         
         if (lastDate) {
             const last = new Date(lastDate);
@@ -3685,5 +3693,5 @@ document.addEventListener('DOMContentLoaded', () => {
 </script>
 </body>
 
-<!-- deployed: 2026-05-20T13:00:00Z -->
+<!-- deployed: 2026-05-20T14:00:00Z -->
 </html>
