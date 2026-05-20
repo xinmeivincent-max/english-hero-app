@@ -3208,7 +3208,13 @@ class EnglishHeroApp {
 
     renderSpeedGame() {
         const gameArea = document.getElementById('game-area');
+        if (!gameArea) return;
+        
         const word = this.gameState.words[this.gameState.currentIndex];
+        if (!word) {
+            this.endSpeedGame();
+            return;
+        }
         
         // 生成选项（1个正确，3个错误）
         const options = [word.meaning];
@@ -3220,14 +3226,17 @@ class EnglishHeroApp {
         gameArea.innerHTML = `
             <div style="text-align: center;">
                 <div class="game-timer" id="speed-timer">${this.gameState.timeLeft}</div>
-                <div class="game-score">${word.word}</div>
-                <div style="margin-bottom: 16px;">选择正确的中文意思：</div>
-                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+                <div class="game-score" style="font-size: 32px; margin: 20px 0;">${word.word}</div>
+                <div style="margin-bottom: 16px; color: var(--text-secondary);">选择正确的中文意思：</div>
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; max-width: 400px; margin: 0 auto;">
                     ${shuffledOptions.map(option => `
-                        <button class="game-btn" onclick="app.answerSpeedGame('${option.replace(/'/g, "\'")}')" style="margin: 0;">
+                        <button class="game-btn" onclick="app.answerSpeedGame(this.dataset.answer)" data-answer="${option.replace(/"/g, '&quot;')}" style="margin: 0; padding: 15px; font-size: 16px;">
                             ${option}
                         </button>
                     `).join('')}
+                </div>
+                <div style="margin-top: 20px;">
+                    <span>进度: ${this.gameState.currentIndex + 1} / ${this.gameState.words.length}</span>
                 </div>
             </div>
         `;
@@ -3478,5 +3487,5 @@ document.addEventListener('DOMContentLoaded', () => {
 </script>
 </body>
 
-<!-- deployed: 2026-05-20T11:50:00Z -->
+<!-- deployed: 2026-05-20T12:00:00Z -->
 </html>
