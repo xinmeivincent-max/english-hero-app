@@ -1007,7 +1007,8 @@ body {
 
 .memory-card.flipped {
     background: var(--bg-card);
-    transform: rotateY(180deg);
+    transform: rotateY(0deg);
+    border: 2px solid var(--primary);
 }
 
 .memory-card.matched {
@@ -1383,10 +1384,11 @@ body {
     display: none !important;
 }
 
-    </style>
+</style>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&display=swap" rel="stylesheet">
 </head>
 <body>
-
     <!-- 加载画面 -->
     <div id="loading-screen" class="loading-screen">
         <div class="loading-content">
@@ -1697,7 +1699,6 @@ body {
     </div>
 
     <!-- 引入数据 -->
-    
     <script>
 // ============================================
 // 英语小英雄 - 完整课程数据
@@ -2135,6 +2136,9 @@ if (typeof module !== 'undefined' && module.exports) {
   module.exports = COURSE_DATA;
 }
 
+</script>
+    <!-- 引入主应用逻辑 -->
+    <script>
 // ============================================
 // 英语小英雄 - 主应用逻辑
 // Reading Explorer 3 闯关学习应用
@@ -2696,25 +2700,16 @@ class EnglishHeroApp {
         const container = document.getElementById('sentence-words');
         if (!container) return;
         
-        // 将句子拆分成单词
-        const words = question.sentence.split(/\s+/);
+        // 创建句子显示，将可点击的部分高亮
+        let sentenceHtml = question.sentence;
         
-        container.innerHTML = words.map((word, i) => {
-            const cleanWord = word.replace(/[.,!?;:]$/, '');
-            
-            // 检查这个单词是否是题目中定义的部件之一
-            const part = question.parts.find(p => {
-                // 检查单词是否匹配部件文本（去除标点）
-                return p.text.toLowerCase() === cleanWord.toLowerCase() ||
-                       word.toLowerCase().includes(p.text.toLowerCase());
-            });
-            
-            if (part) {
-                return `<span class="analysis-word" data-correct="${part.correct}" onclick="app.selectWordPart(this)">${word}</span>`;
-            }
-            
-            return `<span style="padding: 4px; display: inline-block;">${word}</span>`;
-        }).join(' ');
+        // 为每个 part 创建可点击的标记
+        question.parts.forEach((part, i) => {
+            const regex = new RegExp('(' + part.text.replace(/[.*+?^${}()|[\]\]/g, '\$&') + ')', 'gi');
+            sentenceHtml = sentenceHtml.replace(regex, `<span class="analysis-word" data-correct="${part.correct}" data-index="${i}" onclick="app.selectWordPart(this)">$1</span>`);
+        });
+        
+        container.innerHTML = `<div style="line-height: 2; font-size: 18px;">${sentenceHtml}</div>`;
         
         // 渲染选项
         const optionsContainer = document.getElementById('analysis-options');
@@ -2801,7 +2796,9 @@ class EnglishHeroApp {
     }
 
     formatPassage(content) {
-        return content.split('\n\n').map(para => `<p style="margin-bottom: 12px;">${para}</p>`).join('');
+        return content.split('
+
+').map(para => `<p style="margin-bottom: 12px;">${para}</p>`).join('');
     }
 
     renderReadingQuestion() {
@@ -3222,7 +3219,7 @@ class EnglishHeroApp {
                 <div style="margin-bottom: 16px;">选择正确的中文意思：</div>
                 <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
                     ${shuffledOptions.map(option => `
-                        <button class="game-btn" onclick="app.answerSpeedGame('${option.replace(/'/g, "\\'")}')" style="margin: 0;">
+                        <button class="game-btn" onclick="app.answerSpeedGame('${option.replace(/'/g, "\'")}')" style="margin: 0;">
                             ${option}
                         </button>
                     `).join('')}
@@ -3473,6 +3470,6 @@ document.addEventListener('DOMContentLoaded', () => {
     app = new EnglishHeroApp();
 });
 
-    </script>
+</script>
 </body>
 </html>
