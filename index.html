@@ -1384,6 +1384,91 @@ body {
     display: none !important;
 }
 
+/* ============================================
+   响应式布局优化 - 适配手机和平板
+   ============================================ */
+
+/* 小屏幕手机优化 */
+@media (max-width: 375px) {
+    :root {
+        --header-height: 50px;
+        --nav-height: 60px;
+    }
+    
+    .memory-grid {
+        grid-template-columns: repeat(4, 1fr) !important;
+        gap: 6px !important;
+    }
+    
+    .memory-card {
+        font-size: 12px !important;
+    }
+    
+    .memory-card span {
+        font-size: 11px !important;
+    }
+    
+    .game-score {
+        font-size: 20px !important;
+    }
+    
+    .action-grid {
+        grid-template-columns: 1fr 1fr !important;
+        gap: 8px !important;
+    }
+    
+    .flashcard {
+        height: 220px !important;
+    }
+    
+    .word-text {
+        font-size: 24px !important;
+    }
+    
+    .word-meaning {
+        font-size: 22px !important;
+    }
+}
+
+/* 平板优化 */
+@media (min-width: 768px) and (max-width: 1024px) {
+    .memory-grid {
+        grid-template-columns: repeat(4, 1fr) !important;
+        max-width: 600px;
+        margin: 0 auto;
+    }
+    
+    .action-grid {
+        grid-template-columns: repeat(4, 1fr) !important;
+    }
+}
+
+/* 大屏幕优化 */
+@media (min-width: 1025px) {
+    .app {
+        max-width: 900px;
+        margin: 0 auto;
+        box-shadow: var(--shadow-lg);
+    }
+    
+    .memory-grid {
+        grid-template-columns: repeat(4, 1fr) !important;
+        max-width: 500px;
+        margin: 0 auto;
+    }
+}
+
+/* 横屏模式优化 */
+@media (max-height: 500px) and (orientation: landscape) {
+    .flashcard {
+        height: 180px !important;
+    }
+    
+    .memory-grid {
+        grid-template-columns: repeat(8, 1fr) !important;
+    }
+}
+
 </style>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&display=swap" rel="stylesheet">
@@ -1901,6 +1986,24 @@ const COURSE_DATA = {
             { text: 'their countries', correct: '宾语' }
           ],
           options: ['主语', '谓语', '宾语', '定语']
+        },
+        {
+          sentence: 'The team won the championship.',
+          parts: [
+            { text: 'The team', correct: '主语' },
+            { text: 'won', correct: '谓语' },
+            { text: 'the championship', correct: '宾语' }
+          ],
+          options: ['主语', '谓语', '宾语', '状语']
+        },
+        {
+          sentence: 'Caffeine improves alertness.',
+          parts: [
+            { text: 'Caffeine', correct: '主语' },
+            { text: 'improves', correct: '谓语' },
+            { text: 'alertness', correct: '宾语' }
+          ],
+          options: ['主语', '谓语', '宾语', '表语']
         }
       ]
     },
@@ -2154,8 +2257,71 @@ class EnglishHeroApp {
         this.currentPattern = null;
         this.currentReading = null;
         this.gameState = {};
+        this.audioContext = null;
         
         this.init();
+    }
+
+    // 音效播放
+    playSound(type) {
+        try {
+            if (!this.audioContext) {
+                this.audioContext = new (window.AudioContext || window.webkitAudioContext)();
+            }
+            
+            const ctx = this.audioContext;
+            const oscillator = ctx.createOscillator();
+            const gainNode = ctx.createGain();
+            
+            oscillator.connect(gainNode);
+            gainNode.connect(ctx.destination);
+            
+            switch(type) {
+                case 'correct':
+                    oscillator.frequency.setValueAtTime(523.25, ctx.currentTime); // C5
+                    oscillator.frequency.setValueAtTime(659.25, ctx.currentTime + 0.1); // E5
+                    gainNode.gain.setValueAtTime(0.3, ctx.currentTime);
+                    gainNode.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.3);
+                    oscillator.start(ctx.currentTime);
+                    oscillator.stop(ctx.currentTime + 0.3);
+                    break;
+                case 'wrong':
+                    oscillator.frequency.setValueAtTime(200, ctx.currentTime);
+                    gainNode.gain.setValueAtTime(0.3, ctx.currentTime);
+                    gainNode.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.4);
+                    oscillator.start(ctx.currentTime);
+                    oscillator.stop(ctx.currentTime + 0.4);
+                    break;
+                case 'click':
+                    oscillator.frequency.setValueAtTime(800, ctx.currentTime);
+                    gainNode.gain.setValueAtTime(0.1, ctx.currentTime);
+                    gainNode.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.1);
+                    oscillator.start(ctx.currentTime);
+                    oscillator.stop(ctx.currentTime + 0.1);
+                    break;
+                case 'match':
+                    oscillator.frequency.setValueAtTime(440, ctx.currentTime);
+                    oscillator.frequency.setValueAtTime(554, ctx.currentTime + 0.1);
+                    oscillator.frequency.setValueAtTime(659, ctx.currentTime + 0.2);
+                    gainNode.gain.setValueAtTime(0.3, ctx.currentTime);
+                    gainNode.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.4);
+                    oscillator.start(ctx.currentTime);
+                    oscillator.stop(ctx.currentTime + 0.4);
+                    break;
+                case 'complete':
+                    oscillator.frequency.setValueAtTime(523, ctx.currentTime);
+                    oscillator.frequency.setValueAtTime(659, ctx.currentTime + 0.15);
+                    oscillator.frequency.setValueAtTime(784, ctx.currentTime + 0.3);
+                    oscillator.frequency.setValueAtTime(1047, ctx.currentTime + 0.45);
+                    gainNode.gain.setValueAtTime(0.3, ctx.currentTime);
+                    gainNode.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.8);
+                    oscillator.start(ctx.currentTime);
+                    oscillator.stop(ctx.currentTime + 0.8);
+                    break;
+            }
+        } catch (e) {
+            // 音效播放失败不影响功能
+        }
     }
 
     // 初始化
@@ -2474,6 +2640,7 @@ class EnglishHeroApp {
 
     // 显示成就弹窗
     showAchievement(achievement) {
+        this.playSound('complete');
         const popup = document.getElementById('achievement-popup');
         document.getElementById('achievement-name').textContent = achievement.name;
         document.getElementById('achievement-desc').textContent = achievement.desc;
@@ -2488,6 +2655,7 @@ class EnglishHeroApp {
 
     // 显示升级弹窗
     showLevelUp(level) {
+        this.playSound('complete');
         const popup = document.getElementById('levelup-popup');
         document.getElementById('levelup-text').textContent = 
             `你升级到了 ${level.icon} ${level.name}！`;
@@ -2741,11 +2909,13 @@ class EnglishHeroApp {
         const correct = this.selectedWord.dataset.correct;
         
         if (type === correct) {
+            this.playSound('correct');
             this.selectedWord.classList.add('correct');
             this.selectedWord.classList.remove('selected');
             this.addXP(10);
             this.updateTaskProgress('sentence');
         } else {
+            this.playSound('wrong');
             this.selectedWord.classList.add('wrong');
             setTimeout(() => {
                 this.selectedWord.classList.remove('wrong');
@@ -2842,8 +3012,10 @@ class EnglishHeroApp {
         
         this.state.totalQuestions++;
         if (correct) {
+            this.playSound('correct');
             this.state.totalCorrect++;
         } else {
+            this.playSound('wrong');
             // 添加到错题本
             this.state.mistakes.push({
                 type: 'reading',
@@ -2893,6 +3065,8 @@ class EnglishHeroApp {
         this.checkAchievement('first_unit');
         this.checkAchievement('reading_hero');
         this.saveState();
+        
+        this.playSound('complete');
         
         // 显示结果
         const questionsContainer = document.getElementById('passage-questions');
@@ -3011,6 +3185,7 @@ class EnglishHeroApp {
             
             if (card1.pair === card2.pair) {
                 // 匹配成功
+                this.playSound('match');
                 this.gameState.matched.push(card1.pair);
                 this.gameState.selected = [];
                 
@@ -3019,11 +3194,13 @@ class EnglishHeroApp {
                     
                     // 检查是否全部匹配
                     if (this.gameState.matched.length === 8) {
+                        this.playSound('complete');
                         this.endMemoryGame();
                     }
                 }, 500);
             } else {
                 // 匹配失败 - 显示错误动画后重置
+                this.playSound('wrong');
                 setTimeout(() => {
                     this.gameState.selected = [];
                     this.renderMemoryGame();
@@ -3044,6 +3221,8 @@ class EnglishHeroApp {
         this.updateTaskProgress('word');
         this.checkAchievement('memory_king');
         this.saveState();
+        
+        this.playSound('complete');
         
         const gameArea = document.getElementById('game-area');
         gameArea.innerHTML = `
@@ -3122,6 +3301,7 @@ class EnglishHeroApp {
         const correctWord = this.gameState.words[this.gameState.currentIndex].word.toLowerCase();
         
         if (userAnswer === correctWord) {
+            this.playSound('correct');
             input.classList.add('correct');
             this.gameState.correct++;
             this.gameState.streak++;
@@ -3131,6 +3311,7 @@ class EnglishHeroApp {
                 this.checkAchievement('spelling_bee');
             }
         } else {
+            this.playSound('wrong');
             input.classList.add('wrong');
             this.gameState.streak = 0;
             
@@ -3166,6 +3347,8 @@ class EnglishHeroApp {
         this.addXP(score);
         this.updateTaskProgress('spelling');
         this.saveState();
+        
+        this.playSound('complete');
         
         const gameArea = document.getElementById('game-area');
         gameArea.innerHTML = `
@@ -3246,8 +3429,11 @@ class EnglishHeroApp {
         const word = this.gameState.words[this.gameState.currentIndex];
         
         if (answer === word.meaning) {
+            this.playSound('correct');
             this.gameState.correct++;
             this.addXP(5);
+        } else {
+            this.playSound('wrong');
         }
         
         this.gameState.currentIndex++;
@@ -3269,6 +3455,8 @@ class EnglishHeroApp {
         
         this.addXP(score);
         this.saveState();
+        
+        this.playSound('complete');
         
         const gameArea = document.getElementById('game-area');
         gameArea.innerHTML = `
@@ -3486,4 +3674,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
 </script>
 </body>
+
+<!-- deployed: 2026-05-20T12:30:00Z -->
 </html>
