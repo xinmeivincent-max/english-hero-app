@@ -4626,56 +4626,39 @@ class EnglishHeroApp {
     }
     
     
-    jumpToReadingUnit(index) {
-        if (index === '' || index === null || index === undefined) return;
+        jumpToReadingUnit(index) {
+        this.currentUnit = index;
+        this.currentReadingUnit = this.getUnitId(index + 1);
         
-        index = parseInt(index);
-        if (isNaN(index) || index < 0 || index >= this.data.units.length) return;
-        
-        const unitName = this.data.units[index].name;
-        const unitId = index + 1;
-        this.currentReadingUnit = index;
-        
-        // 根据单元过滤阅读文章
+        // 根据单元获取文章
         const levels = document.getElementById('reading-levels');
         if (levels) {
-            const filteredPassages = this.data.readingPassages.filter(p => p.unitId === unitId);
+            const unitData = this.data.readingPassages.units.find(u => u.id === this.currentReadingUnit);
             
-            if (filteredPassages.length === 0) {
+            if (!unitData || !unitData.articles || unitData.articles.length === 0) {
                 levels.innerHTML = `<div style="text-align: center; padding: 20px; color: var(--text-secondary);">
                     该单元暂无阅读文章
                 </div>`;
             } else {
-                levels.innerHTML = filteredPassages.map((passage) => {
-                    const completed = this.state.completedReadings.includes(passage.id);
-                    const originalIndex = this.data.readingPassages.indexOf(passage);
-                    
+                levels.innerHTML = unitData.articles.map((article, idx) => {
+                    const completed = this.state.completedReadings.includes(article.id);
                     return `
-                        <div class="level-card ${completed ? 'completed' : ''}" onclick="app.selectReading(${originalIndex})">
-                            <div class="level-number">${originalIndex + 1}</div>
+                        <div class="level-card ${completed ? 'completed' : ''}" onclick="app.selectReading('${unitData.id}', ${idx})">
+                            <div class="level-number">${idx + 1}</div>
                             <div class="level-info">
-                                <h4>${passage.title}</h4>
-                                <p>${passage.subtitle} · ${passage.difficulty} · ${passage.questions.length}题</p>
+                                <h4>${article.title}</h4>
+                                <p>${article.subtitle} · ${article.questions.length}题</p>
                             </div>
-                            <div class="level-xp">+${passage.xp}XP</div>
+                            <div class="level-xp">+${100 + (idx * 20)}XP</div>
                         </div>
                     `;
                 }).join('');
             }
         }
         
-        // 显示跳转提示
-        const timerEl = document.getElementById('reading-timer');
-        if (timerEl) {
-            timerEl.innerHTML = `<div style="color: #4CAF50; font-weight: bold; padding: 10px; background: #E8F5E9; border-radius: 8px; text-align: center;">
-                ✅ 已切换到 ${unitName}
-            </div>`;
-            setTimeout(() => {
-                timerEl.innerHTML = '';
-            }, 2000);
-        }
+        this.updateReadingUnitDropdown();
     }
-
+    
     
     renderReadingContent() {
         const passageArea = document.getElementById('passage-area');
