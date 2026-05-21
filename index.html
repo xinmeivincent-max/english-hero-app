@@ -1770,21 +1770,23 @@ const COURSE_DATA = {
     { id: 12, name: 'Unit 6B', title: 'Healing Forests', page: 98, theme: 'Nature' }
   ],
 
-  // 单词数据 - 按单元分组
+  // 单词数据 - 基于 RE 3 生词表
   vocabulary: [
     {
       unit: 1,
       unitName: 'Unit 1A - The World\'s Game',
       unitTitle: '世界运动',
       words: [
-        { word: 'global', phonetic: '/ˈɡloʊbl/', meaning: '全球的，全世界的', example: 'Soccer is a global sport played everywhere.', image: '🌍' },
-        { word: 'athlete', phonetic: '/ˈæθliːt/', meaning: '运动员', example: 'The athlete trains hard every day.', image: '🏃' },
-        { word: 'compete', phonetic: '/kəmˈpiːt/', meaning: '竞争，比赛', example: 'Teams compete for the championship.', image: '🏆' },
-        { word: 'champion', phonetic: '/ˈtʃæmpiən/', meaning: '冠军', example: 'They became the world champions.', image: '🥇' },
-        { word: 'tournament', phonetic: '/ˈtʊrnəmənt/', meaning: '锦标赛', example: 'The tournament has 32 teams.', image: '🏟️' },
-        { word: 'qualify', phonetic: '/ˈkwɑːlɪfaɪ/', meaning: '获得资格', example: 'They qualified for the World Cup.', image: '✅' },
-        { word: 'represent', phonetic: '/ˌreprɪˈzent/', meaning: '代表', example: 'Each team represents a country.', image: '🏳️' },
-        { word: 'citizenship', phonetic: '/ˈsɪtɪzənʃɪp/', meaning: '公民身份', example: 'He has dual citizenship.', image: '📜' }
+        { word: 'competitor', phonetic: '/competitor/', meaning: 'CEFR B1 词汇', example: 'This is an example with competitor.', image: '📝' },
+        { word: 'defeat', phonetic: '/defeat/', meaning: 'CEFR B1 词汇', example: 'This is an example with defeat.', image: '📝' },
+        { word: 'establish', phonetic: '/establish/', meaning: 'CEFR B2 词汇', example: 'This is an example with establish.', image: '📝' },
+        { word: 'passion', phonetic: '/passion/', meaning: 'CEFR B2 词汇', example: 'This is an example with passion.', image: '📝' },
+        { word: 'recruit', phonetic: '/recruit/', meaning: 'CEFR C1 词汇', example: 'This is an example with recruit.', image: '📝' },
+        { word: 'responsible', phonetic: '/responsible/', meaning: 'CEFR B1 词汇', example: 'This is an example with responsible.', image: '📝' },
+        { word: 'unique', phonetic: '/unique/', meaning: 'CEFR B2 词汇', example: 'This is an example with unique.', image: '📝' },
+        { word: 'unity', phonetic: '/unity/', meaning: 'CEFR C1 词汇', example: 'This is an example with unity.', image: '📝' },
+        { word: 'universal', phonetic: '/universal/', meaning: 'CEFR B2 词汇', example: 'This is an example with universal.', image: '📝' },
+        { word: 'victory', phonetic: '/victory/', meaning: 'CEFR B2 词汇', example: 'This is an example with victory.', image: '📝' },
       ]
     },
     {
@@ -1792,20 +1794,33 @@ const COURSE_DATA = {
       unitName: 'Unit 1B - A Love for Soccer',
       unitTitle: '非洲足球',
       words: [
-        { word: 'colonist', phonetic: '/ˈkɑːlənɪst/', meaning: '殖民者', example: 'European colonists brought soccer to Africa.', image: '⛵' },
-        { word: 'immigrant', phonetic: '/ˈɪmɪɡrənt/', meaning: '移民', example: 'Many immigrants came to live here.', image: '🛬' },
-        { word: 'discrimination', phonetic: '/dɪˌskrɪmɪˈneɪʃn/', meaning: '歧视', example: 'They faced discrimination for years.', image: '⚠️' },
-        { word: 'unity', phonetic: '/ˈjuːnəti/', meaning: '团结，统一', example: 'The team became a symbol of unity.', image: '🤝' },
-        { word: 'recruit', phonetic: '/rɪˈkruːt/', meaning: '招募', example: 'Academies recruit boys from poor cities.', image: '📢' },
-        { word: 'bare', phonetic: '/ber/', meaning: '赤裸的', example: 'They play in bare feet.', image: '🦶' }
+        { word: 'adjust', phonetic: '/adjust/', meaning: 'CEFR B2 词汇', example: 'This is an example with adjust.', image: '📝' },
+        { word: 'automatic', phonetic: '/automatic/', meaning: 'CEFR B2 词汇', example: 'This is an example with automatic.', image: '📝' },
+        { word: 'champion', phonetic: '/champion/', meaning: 'CEFR B1 词汇', example: 'This is an example with champion.', image: '📝' },
+        { word: 'differentiate', phonetic: '/differentiate/', meaning: 'CEFR C1 词汇', example: 'This is an example with differentiate.', image: '📝' },
+        { word: 'elite', phonetic: '/elite/', meaning: 'CEFR C1 词汇', example: 'This is an example with elite.', image: '📝' },
+        { word: 'enhance', phonetic: '/enhance/', meaning: 'CEFR C1 词汇', example: 'This is an example with enhance.', image: '📝' },
+        { word: 'generate', phonetic: '/generate/', meaning: 'CEFR B2 词汇', example: 'This is an example with generate.', image: '📝' },
+        { word: 'genetic', phonetic: '/genetic/', meaning: 'CEFR B2 词汇', example: 'This is an example with genetic.', image: '📝' },
+        { word: 'psychological', phonetic: '/psychological/', meaning: 'CEFR B2 词汇', example: 'This is an example with psychological.', image: '📝' },
+        { word: 'require', phonetic: '/require/', meaning: 'CEFR B2 词汇', example: 'This is an example with require.', image: '📝' },
       ]
     },
     {
       unit: 3,
-      unitName: 'Unit 2A - Passage Title',
-      unitTitle: '主题',
+      unitName: 'Unit 2A - The Psychology of Color',
+      unitTitle: '色彩心理学',
       words: [
-        { word: 'example', phonetic: '/ɪɡˈzæmpl/', meaning: '例子', example: 'This is an example sentence.', image: '📝' }
+        { word: 'associate with', phonetic: '/associate with/', meaning: 'CEFR B2 词汇', example: 'This is an example with associate with.', image: '📝' },
+        { word: 'conform', phonetic: '/conform/', meaning: 'CEFR B1 词汇', example: 'This is an example with conform.', image: '📝' },
+        { word: 'consumer', phonetic: '/consumer/', meaning: 'CEFR B2 词汇', example: 'This is an example with consumer.', image: '📝' },
+        { word: 'desire', phonetic: '/desire/', meaning: 'CEFR B2 词汇', example: 'This is an example with desire.', image: '📝' },
+        { word: 'devote', phonetic: '/devote/', meaning: 'CEFR B2 词汇', example: 'This is an example with devote.', image: '📝' },
+        { word: 'feature', phonetic: '/feature/', meaning: 'CEFR B2 词汇', example: 'This is an example with feature.', image: '📝' },
+        { word: 'gender', phonetic: '/gender/', meaning: 'CEFR B2 词汇', example: 'This is an example with gender.', image: '📝' },
+        { word: 'notion', phonetic: '/notion/', meaning: 'CEFR C1 词汇', example: 'This is an example with notion.', image: '📝' },
+        { word: 'subjective', phonetic: '/subjective/', meaning: 'CEFR C1 词汇', example: 'This is an example with subjective.', image: '📝' },
+        { word: 'uniform', phonetic: '/uniform/', meaning: 'CEFR A2 词汇', example: 'This is an example with uniform.', image: '📝' },
       ]
     },
     {
@@ -1813,7 +1828,16 @@ const COURSE_DATA = {
       unitName: 'Unit 2B - Passage Title',
       unitTitle: '主题',
       words: [
-        { word: 'example', phonetic: '/ɪɡˈzæmpl/', meaning: '例子', example: 'This is an example sentence.', image: '📝' }
+        { word: 'criminal', phonetic: '/criminal/', meaning: 'CEFR B1 词汇', example: 'This is an example with criminal.', image: '📝' },
+        { word: 'crucial', phonetic: '/crucial/', meaning: 'CEFR B2 词汇', example: 'This is an example with crucial.', image: '📝' },
+        { word: 'external', phonetic: '/external/', meaning: 'CEFR B2 词汇', example: 'This is an example with external.', image: '📝' },
+        { word: 'fade', phonetic: '/fade/', meaning: 'CEFR B2 词汇', example: 'This is an example with fade.', image: '📝' },
+        { word: 'leisure', phonetic: '/leisure/', meaning: 'CEFR B1 词汇', example: 'This is an example with leisure.', image: '📝' },
+        { word: 'mature', phonetic: '/mature/', meaning: 'CEFR B2 词汇', example: 'This is an example with mature.', image: '📝' },
+        { word: 'permanent', phonetic: '/permanent/', meaning: 'CEFR B1 词汇', example: 'This is an example with permanent.', image: '📝' },
+        { word: 'protective', phonetic: '/protective/', meaning: 'CEFR B2 词汇', example: 'This is an example with protective.', image: '📝' },
+        { word: 'sector', phonetic: '/sector/', meaning: 'CEFR C1 词汇', example: 'This is an example with sector.', image: '📝' },
+        { word: 'status', phonetic: '/status/', meaning: 'CEFR C1 词汇', example: 'This is an example with status.', image: '📝' },
       ]
     },
     {
@@ -1821,7 +1845,16 @@ const COURSE_DATA = {
       unitName: 'Unit 3A - Passage Title',
       unitTitle: '主题',
       words: [
-        { word: 'example', phonetic: '/ɪɡˈzæmpl/', meaning: '例子', example: 'This is an example sentence.', image: '📝' }
+        { word: 'capture', phonetic: '/capture/', meaning: 'CEFR B2 词汇', example: 'This is an example with capture.', image: '📝' },
+        { word: 'extinct', phonetic: '/extinct/', meaning: 'CEFR C1 词汇', example: 'This is an example with extinct.', image: '📝' },
+        { word: 'grasp', phonetic: '/grasp/', meaning: 'CEFR C1 词汇', example: 'This is an example with grasp.', image: '📝' },
+        { word: 'physical', phonetic: '/physical/', meaning: 'CEFR B2 词汇', example: 'This is an example with physical.', image: '📝' },
+        { word: 'primary', phonetic: '/primary/', meaning: 'CEFR B2 词汇', example: 'This is an example with primary.', image: '📝' },
+        { word: 'reproduce', phonetic: '/reproduce/', meaning: 'CEFR C1 词汇', example: 'This is an example with reproduce.', image: '📝' },
+        { word: 'signal', phonetic: '/signal/', meaning: 'CEFR B2 词汇', example: 'This is an example with signal.', image: '📝' },
+        { word: 'suburb', phonetic: '/suburb/', meaning: 'CEFR B2 词汇', example: 'This is an example with suburb.', image: '📝' },
+        { word: 'tend to', phonetic: '/tend to/', meaning: 'CEFR B2 词汇', example: 'This is an example with tend to.', image: '📝' },
+        { word: 'threaten', phonetic: '/threaten/', meaning: 'CEFR B2 词汇', example: 'This is an example with threaten.', image: '📝' },
       ]
     },
     {
@@ -1829,7 +1862,16 @@ const COURSE_DATA = {
       unitName: 'Unit 3B - Passage Title',
       unitTitle: '主题',
       words: [
-        { word: 'example', phonetic: '/ɪɡˈzæmpl/', meaning: '例子', example: 'This is an example sentence.', image: '📝' }
+        { word: 'bonus', phonetic: '/bonus/', meaning: 'CEFR B2 词汇', example: 'This is an example with bonus.', image: '📝' },
+        { word: 'conflict', phonetic: '/conflict/', meaning: 'CEFR B2 词汇', example: 'This is an example with conflict.', image: '📝' },
+        { word: 'distinctive', phonetic: '/distinctive/', meaning: 'CEFR C1 词汇', example: 'This is an example with distinctive.', image: '📝' },
+        { word: 'drag', phonetic: '/drag/', meaning: 'CEFR B1 词汇', example: 'This is an example with drag.', image: '📝' },
+        { word: 'enforce', phonetic: '/enforce/', meaning: 'CEFR C1 词汇', example: 'This is an example with enforce.', image: '📝' },
+        { word: 'landscape', phonetic: '/landscape/', meaning: 'CEFR B1 词汇', example: 'This is an example with landscape.', image: '📝' },
+        { word: 'officially', phonetic: '/officially/', meaning: 'CEFR C1 词汇', example: 'This is an example with officially.', image: '📝' },
+        { word: 'poverty', phonetic: '/poverty/', meaning: 'CEFR B2 词汇', example: 'This is an example with poverty.', image: '📝' },
+        { word: 'reverse', phonetic: '/reverse/', meaning: 'CEFR B2 词汇', example: 'This is an example with reverse.', image: '📝' },
+        { word: 'status', phonetic: '/status/', meaning: 'CEFR C1 词汇', example: 'This is an example with status.', image: '📝' },
       ]
     },
     {
@@ -1837,7 +1879,16 @@ const COURSE_DATA = {
       unitName: 'Unit 4A - Passage Title',
       unitTitle: '主题',
       words: [
-        { word: 'example', phonetic: '/ɪɡˈzæmpl/', meaning: '例子', example: 'This is an example sentence.', image: '📝' }
+        { word: 'ancestor', phonetic: '/ancestor/', meaning: 'CEFR B2 词汇', example: 'This is an example with ancestor.', image: '📝' },
+        { word: 'dawn', phonetic: '/dawn/', meaning: 'CEFR B2 词汇', example: 'This is an example with dawn.', image: '📝' },
+        { word: 'destruction', phonetic: '/destruction/', meaning: 'CEFR B2 词汇', example: 'This is an example with destruction.', image: '📝' },
+        { word: 'disaster', phonetic: '/disaster/', meaning: 'CEFR B2 词汇', example: 'This is an example with disaster.', image: '📝' },
+        { word: 'displace', phonetic: '/displace/', meaning: 'CEFR C1 词汇', example: 'This is an example with displace.', image: '📝' },
+        { word: 'expand', phonetic: '/expand/', meaning: 'CEFR B2 词汇', example: 'This is an example with expand.', image: '📝' },
+        { word: 'inevitable', phonetic: '/inevitable/', meaning: 'CEFR C1 词汇', example: 'This is an example with inevitable.', image: '📝' },
+        { word: 'monitor', phonetic: '/monitor/', meaning: 'CEFR C1 词汇', example: 'This is an example with monitor.', image: '📝' },
+        { word: 'summit', phonetic: '/summit/', meaning: 'CEFR C1 词汇', example: 'This is an example with summit.', image: '📝' },
+        { word: 'witness', phonetic: '/witness/', meaning: 'CEFR B2 词汇', example: 'This is an example with witness.', image: '📝' },
       ]
     },
     {
@@ -1845,7 +1896,16 @@ const COURSE_DATA = {
       unitName: 'Unit 4B - Passage Title',
       unitTitle: '主题',
       words: [
-        { word: 'example', phonetic: '/ɪɡˈzæmpl/', meaning: '例子', example: 'This is an example sentence.', image: '📝' }
+        { word: 'data', phonetic: '/data/', meaning: 'CEFR B2 词汇', example: 'This is an example with data.', image: '📝' },
+        { word: 'detect', phonetic: '/detect/', meaning: 'CEFR C1 词汇', example: 'This is an example with detect.', image: '📝' },
+        { word: 'foundation', phonetic: '/foundation/', meaning: 'CEFR B2 词汇', example: 'This is an example with foundation.', image: '📝' },
+        { word: 'laboratory', phonetic: '/laboratory/', meaning: 'CEFR B1 词汇', example: 'This is an example with laboratory.', image: '📝' },
+        { word: 'massive', phonetic: '/massive/', meaning: 'CEFR B2 词汇', example: 'This is an example with massive.', image: '📝' },
+        { word: 'precise', phonetic: '/precise/', meaning: 'CEFR B2 词汇', example: 'This is an example with precise.', image: '📝' },
+        { word: 'random', phonetic: '/random/', meaning: 'CEFR C1 词汇', example: 'This is an example with random.', image: '📝' },
+        { word: 'schedule', phonetic: '/schedule/', meaning: 'CEFR B2 词汇', example: 'This is an example with schedule.', image: '📝' },
+        { word: 'track', phonetic: '/track/', meaning: 'CEFR B1 词汇', example: 'This is an example with track.', image: '📝' },
+        { word: 'zone', phonetic: '/zone/', meaning: 'CEFR B1 词汇', example: 'This is an example with zone.', image: '📝' },
       ]
     },
     {
@@ -1853,7 +1913,16 @@ const COURSE_DATA = {
       unitName: 'Unit 5A - Passage Title',
       unitTitle: '主题',
       words: [
-        { word: 'example', phonetic: '/ɪɡˈzæmpl/', meaning: '例子', example: 'This is an example sentence.', image: '📝' }
+        { word: 'architecture', phonetic: '/architecture/', meaning: 'CEFR B1 词汇', example: 'This is an example with architecture.', image: '📝' },
+        { word: 'award', phonetic: '/award/', meaning: 'CEFR B2 词汇', example: 'This is an example with award.', image: '📝' },
+        { word: 'convert', phonetic: '/convert/', meaning: 'CEFR B2 词汇', example: 'This is an example with convert.', image: '📝' },
+        { word: 'cure', phonetic: '/cure/', meaning: 'CEFR B2 词汇', example: 'This is an example with cure.', image: '📝' },
+        { word: 'literally', phonetic: '/literally/', meaning: 'CEFR B2 词汇', example: 'This is an example with literally.', image: '📝' },
+        { word: 'migrate', phonetic: '/migrate/', meaning: 'CEFR B2 词汇', example: 'This is an example with migrate.', image: '📝' },
+        { word: 'monster', phonetic: '/monster/', meaning: 'CEFR B1 词汇', example: 'This is an example with monster.', image: '📝' },
+        { word: 'naturally', phonetic: '/naturally/', meaning: 'CEFR B2 词汇', example: 'This is an example with naturally.', image: '📝' },
+        { word: 'spectacular', phonetic: '/spectacular/', meaning: 'CEFR B1 词汇', example: 'This is an example with spectacular.', image: '📝' },
+        { word: 'tension', phonetic: '/tension/', meaning: 'CEFR B2 词汇', example: 'This is an example with tension.', image: '📝' },
       ]
     },
     {
@@ -1861,7 +1930,16 @@ const COURSE_DATA = {
       unitName: 'Unit 5B - Passage Title',
       unitTitle: '主题',
       words: [
-        { word: 'example', phonetic: '/ɪɡˈzæmpl/', meaning: '例子', example: 'This is an example sentence.', image: '📝' }
+        { word: 'balance', phonetic: '/balance/', meaning: 'CEFR B2 词汇', example: 'This is an example with balance.', image: '📝' },
+        { word: 'destination', phonetic: '/destination/', meaning: 'CEFR B1 词汇', example: 'This is an example with destination.', image: '📝' },
+        { word: 'eager', phonetic: '/eager/', meaning: 'CEFR B2 词汇', example: 'This is an example with eager.', image: '📝' },
+        { word: 'isolated', phonetic: '/isolated/', meaning: 'CEFR C1 词汇', example: 'This is an example with isolated.', image: '📝' },
+        { word: 'magnificent', phonetic: '/magnificent/', meaning: 'CEFR B1 词汇', example: 'This is an example with magnificent.', image: '📝' },
+        { word: 'prohibit', phonetic: '/prohibit/', meaning: 'CEFR B2 词汇', example: 'This is an example with prohibit.', image: '📝' },
+        { word: 'rank', phonetic: '/rank/', meaning: 'CEFR C1 词汇', example: 'This is an example with rank.', image: '📝' },
+        { word: 'spoil', phonetic: '/spoil/', meaning: 'CEFR B1 词汇', example: 'This is an example with spoil.', image: '📝' },
+        { word: 'state', phonetic: '/state/', meaning: 'CEFR B2 词汇', example: 'This is an example with state.', image: '📝' },
+        { word: 'ultimate', phonetic: '/ultimate/', meaning: 'CEFR B2 词汇', example: 'This is an example with ultimate.', image: '📝' },
       ]
     },
     {
@@ -1869,11 +1947,16 @@ const COURSE_DATA = {
       unitName: 'Unit 6A - The World\'s Favorite Drug',
       unitTitle: '咖啡因',
       words: [
-        { word: 'caffeine', phonetic: '/kæˈfiːn/', meaning: '咖啡因', example: 'Coffee contains caffeine.', image: '☕' },
-        { word: 'stimulant', phonetic: '/ˈstɪmjələnt/', meaning: '兴奋剂，刺激物', example: 'Caffeine is a stimulant.', image: '⚡' },
-        { word: 'moderation', phonetic: '/ˌmɑːdəˈreɪʃn/', meaning: '适度', example: 'Drink coffee in moderation.', image: '⚖️' },
-        { word: 'fatigue', phonetic: '/fəˈtiːɡ/', meaning: '疲劳', example: 'Caffeine fights fatigue.', image: '😴' },
-        { word: 'alertness', phonetic: '/əˈlɜːrtnəs/', meaning: '警觉性', example: 'Caffeine increases alertness.', image: '👀' }
+        { word: 'abuse', phonetic: '/abuse/', meaning: 'CEFR B2 词汇', example: 'This is an example with abuse.', image: '📝' },
+        { word: 'contradict', phonetic: '/contradict/', meaning: 'CEFR C1 词汇', example: 'This is an example with contradict.', image: '📝' },
+        { word: 'exhibit', phonetic: '/exhibit/', meaning: 'CEFR C1 词汇', example: 'This is an example with exhibit.', image: '📝' },
+        { word: 'facilitate', phonetic: '/facilitate/', meaning: 'CEFR C1 词汇', example: 'This is an example with facilitate.', image: '📝' },
+        { word: 'furthermore', phonetic: '/furthermore/', meaning: 'CEFR B2 词汇', example: 'This is an example with furthermore.', image: '📝' },
+        { word: 'mental', phonetic: '/mental/', meaning: 'CEFR B2 词汇', example: 'This is an example with mental.', image: '📝' },
+        { word: 'proof', phonetic: '/proof/', meaning: 'CEFR B2 词汇', example: 'This is an example with proof.', image: '📝' },
+        { word: 'reaction', phonetic: '/reaction/', meaning: 'CEFR B2 词汇', example: 'This is an example with reaction.', image: '📝' },
+        { word: 'specialist', phonetic: '/specialist/', meaning: 'CEFR B2 词汇', example: 'This is an example with specialist.', image: '📝' },
+        { word: 'temporary', phonetic: '/temporary/', meaning: 'CEFR B1 词汇', example: 'This is an example with temporary.', image: '📝' },
       ]
     },
     {
@@ -1881,13 +1964,19 @@ const COURSE_DATA = {
       unitName: 'Unit 6B - Healing Forests',
       unitTitle: '自然疗愈',
       words: [
-        { word: 'concentration', phonetic: '/ˌkɑːnsnˈtreɪʃn/', meaning: '专注，集中', example: 'Nature improves concentration.', image: '🧘' },
-        { word: 'surroundings', phonetic: '/səˈraʊndɪŋz/', meaning: '环境', example: 'Enjoy the natural surroundings.', image: '🌲' },
-        { word: 'therapy', phonetic: '/ˈθerəpi/', meaning: '治疗', example: 'Forest therapy helps reduce stress.', image: '🌿' }
+        { word: 'concentration', phonetic: '/concentration/', meaning: 'CEFR B2 词汇', example: 'This is an example with concentration.', image: '📝' },
+        { word: 'consequently', phonetic: '/consequently/', meaning: 'CEFR B2 词汇', example: 'This is an example with consequently.', image: '📝' },
+        { word: 'constant', phonetic: '/constant/', meaning: 'CEFR B2 词汇', example: 'This is an example with constant.', image: '📝' },
+        { word: 'excessive', phonetic: '/excessive/', meaning: 'CEFR C1 词汇', example: 'This is an example with excessive.', image: '📝' },
+        { word: 'focus', phonetic: '/focus/', meaning: 'CEFR B2 词汇', example: 'This is an example with focus.', image: '📝' },
+        { word: 'in turn', phonetic: '/in turn/', meaning: 'CEFR C1 词汇', example: 'This is an example with in turn.', image: '📝' },
+        { word: 'surroundings', phonetic: '/surroundings/', meaning: 'CEFR B2 词汇', example: 'This is an example with surroundings.', image: '📝' },
+        { word: 'switch', phonetic: '/switch/', meaning: 'CEFR B2 词汇', example: 'This is an example with switch.', image: '📝' },
+        { word: 'therapy', phonetic: '/therapy/', meaning: 'CEFR B2 词汇', example: 'This is an example with therapy.', image: '📝' },
+        { word: 'visual', phonetic: '/visual/', meaning: 'CEFR B2 词汇', example: 'This is an example with visual.', image: '📝' },
       ]
-    }
+    },
   ],
-
   // 句型分析数据 - 按单元分组
   // 每个单元包含多种句型，句型从该单元课文中提取
   sentencePatterns: [
