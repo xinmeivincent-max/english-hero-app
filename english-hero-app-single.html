@@ -1638,6 +1638,13 @@ body {
                     <button class="back-btn" onclick="app.navigate('home')">← 返回</button>
                     <h2>🔍 句型分析</h2>
                 </div>
+                <!-- 单元选择下拉菜单 -->
+                <div style="margin: 10px 0; text-align: center;">
+                    <select id="sentence-unit-select" onchange="app.jumpToSentenceUnit(this.value)" 
+                            style="padding: 10px 15px; font-size: 16px; border: 2px solid var(--primary); border-radius: 8px; background: white; cursor: pointer;">
+                        <option value="">📍 选择单元跳转...</option>
+                    </select>
+                </div>
                 <div class="pattern-list" id="pattern-list"></div>
                 <div class="sentence-practice" id="sentence-practice">
                     <div class="practice-area" id="practice-area">
@@ -1654,6 +1661,13 @@ body {
                 <div class="page-header">
                     <button class="back-btn" onclick="app.navigate('home')">← 返回</button>
                     <h2>📖 阅读闯关</h2>
+                </div>
+                <!-- 单元选择下拉菜单 -->
+                <div style="margin: 10px 0; text-align: center;">
+                    <select id="reading-unit-select" onchange="app.jumpToReadingUnit(this.value)" 
+                            style="padding: 10px 15px; font-size: 16px; border: 2px solid var(--primary); border-radius: 8px; background: white; cursor: pointer;">
+                        <option value="">📍 选择单元跳转...</option>
+                    </select>
                 </div>
                 <div class="reading-levels" id="reading-levels"></div>
                 <div class="reading-content" id="reading-content">
@@ -2909,12 +2923,69 @@ class EnglishHeroApp {
         const list = document.getElementById('pattern-list');
         if (!list) return;
         
+        // 更新句型页面单元选择下拉菜单
+        this.updateSentenceUnitDropdown();
+        
         list.innerHTML = this.data.sentencePatterns.map((pattern, index) => `
             <div class="pattern-card" onclick="app.selectPattern(${index})">
                 <h4>${pattern.title}</h4>
                 <p>${pattern.description}</p>
             </div>
         `).join('');
+    }
+    
+    updateSentenceUnitDropdown() {
+        const dropdown = document.getElementById('sentence-unit-select');
+        if (!dropdown) return;
+        
+        let options = '<option value="">📍 选择单元跳转...</option>';
+        this.data.units.forEach((unit, index) => {
+            options += `<option value="${index}">${unit.name}</option>`;
+        });
+        dropdown.innerHTML = options;
+    }
+    
+    jumpToSentenceUnit(index) {
+        if (index === '' || index === null || index === undefined) return;
+        
+        index = parseInt(index);
+        if (isNaN(index) || index < 0 || index >= this.data.units.length) return;
+        
+        // 根据单元过滤句型
+        const unitName = this.data.units[index].name;
+        this.currentSentenceUnit = index;
+        
+        // 重新渲染句型列表，只显示当前单元的句型
+        const list = document.getElementById('pattern-list');
+        if (list) {
+            const filteredPatterns = this.data.sentencePatterns.filter(p => 
+                p.unit === unitName || p.unit === index + 1 || p.unit === undefined
+            );
+            
+            if (filteredPatterns.length === 0) {
+                list.innerHTML = `<div style="text-align: center; padding: 20px; color: var(--text-secondary);">
+                    该单元暂无句型练习
+                </div>`;
+            } else {
+                list.innerHTML = filteredPatterns.map((pattern, idx) => `
+                    <div class="pattern-card" onclick="app.selectPattern(${this.data.sentencePatterns.indexOf(pattern)})">
+                        <h4>${pattern.title}</h4>
+                        <p>${pattern.description}</p>
+                    </div>
+                `).join('');
+            }
+        }
+        
+        // 显示跳转提示
+        const feedbackEl = document.getElementById('analysis-feedback');
+        if (feedbackEl) {
+            feedbackEl.innerHTML = `<div style="color: #4CAF50; font-weight: bold; padding: 10px; background: #E8F5E9; border-radius: 8px; margin-top: 10px; text-align: center;">
+                ✅ 已切换到 ${unitName}
+            </div>`;
+            setTimeout(() => {
+                feedbackEl.innerHTML = '';
+            }, 2000);
+        }
     }
 
     selectPattern(index) {
@@ -3051,6 +3122,9 @@ class EnglishHeroApp {
         const levels = document.getElementById('reading-levels');
         if (!levels) return;
         
+        // 更新阅读页面单元选择下拉菜单
+        this.updateReadingUnitDropdown();
+        
         levels.innerHTML = this.data.readingPassages.map((passage, index) => {
             const completed = this.state.completedReadings.includes(passage.id);
             
@@ -3065,6 +3139,68 @@ class EnglishHeroApp {
                 </div>
             `;
         }).join('');
+    }
+    
+    updateReadingUnitDropdown() {
+        const dropdown = document.getElementById('reading-unit-select');
+        if (!dropdown) return;
+        
+        let options = '<option value="">📍 选择单元跳转...</option>';
+        this.data.units.forEach((unit, index) => {
+            options += `<option value="${index}">${unit.name}</option>`;
+        });
+        dropdown.innerHTML = options;
+    }
+    
+    jumpToReadingUnit(index) {
+        if (index === '' || index === null || index === undefined) return;
+        
+        index = parseInt(index);
+        if (isNaN(index) || index < 0 || index >= this.data.units.length) return;
+        
+        const unitName = this.data.units[index].name;
+        this.currentReadingUnit = index;
+        
+        // 根据单元过滤阅读文章
+        const levels = document.getElementById('reading-levels');
+        if (levels) {
+            const filteredPassages = this.data.readingPassages.filter(p => 
+                p.unit === unitName || p.unit === index + 1 || p.unit === undefined
+            );
+            
+            if (filteredPassages.length === 0) {
+                levels.innerHTML = `<div style="text-align: center; padding: 20px; color: var(--text-secondary);">
+                    该单元暂无阅读文章
+                </div>`;
+            } else {
+                levels.innerHTML = filteredPassages.map((passage, idx) => {
+                    const completed = this.state.completedReadings.includes(passage.id);
+                    const originalIndex = this.data.readingPassages.indexOf(passage);
+                    
+                    return `
+                        <div class="level-card ${completed ? 'completed' : ''}" onclick="app.selectReading(${originalIndex})">
+                            <div class="level-number">${originalIndex + 1}</div>
+                            <div class="level-info">
+                                <h4>${passage.title}</h4>
+                                <p>${passage.subtitle} · ${passage.difficulty} · ${passage.questions.length}题</p>
+                            </div>
+                            <div class="level-xp">+${passage.xp}XP</div>
+                        </div>
+                    `;
+                }).join('');
+            }
+        }
+        
+        // 显示跳转提示
+        const timerEl = document.getElementById('reading-timer');
+        if (timerEl) {
+            timerEl.innerHTML = `<div style="color: #4CAF50; font-weight: bold; padding: 10px; background: #E8F5E9; border-radius: 8px; text-align: center;">
+                ✅ 已切换到 ${unitName}
+            </div>`;
+            setTimeout(() => {
+                timerEl.innerHTML = '';
+            }, 2000);
+        }
     }
 
     selectReading(index) {
