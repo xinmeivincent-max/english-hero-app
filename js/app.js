@@ -1113,12 +1113,12 @@ class EnglishHeroApp {
 
     answerReadingQuestion(answerIndex) {
         const question = this.currentReading.questions[this.currentQuestionIndex];
-        const correct = answerIndex === question.correct;
+        const correct = answerIndex === question.answer;
         
         this.readingAnswers.push({
             question: question.question,
             userAnswer: question.options[answerIndex],
-            correctAnswer: question.options[question.correct],
+            correctAnswer: question.options[question.answer],
             correct: correct,
             explanation: question.explanation
         });
@@ -1126,7 +1126,7 @@ class EnglishHeroApp {
         // 显示正确/错误
         const options = document.querySelectorAll('.question-option');
         options[answerIndex].classList.add(correct ? 'correct' : 'wrong');
-        options[question.correct].classList.add('correct');
+        options[question.answer].classList.add('correct');
         
         this.state.totalQuestions++;
         if (correct) {
@@ -1139,7 +1139,7 @@ class EnglishHeroApp {
                 type: 'reading',
                 question: question.question,
                 userAnswer: question.options[answerIndex],
-                correctAnswer: question.options[question.correct],
+                correctAnswer: question.options[question.answer],
                 explanation: question.explanation,
                 date: new Date().toISOString()
             });
@@ -1165,7 +1165,7 @@ class EnglishHeroApp {
         const accuracy = Math.round((correctCount / totalQuestions) * 100);
         
         // 计算XP
-        let xpEarned = Math.round(this.currentReading.xp * (accuracy / 100));
+        let xpEarned = Math.round(100 * (accuracy / 100));
         if (accuracy === 100) {
             xpEarned += 20; // 满分奖励
             this.checkAchievement('perfect_quiz');
