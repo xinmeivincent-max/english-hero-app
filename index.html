@@ -123,6 +123,13 @@
                     <h2>📚 单词学习</h2>
                 </div>
                 <div class="unit-selector" id="unit-selector"></div>
+                <!-- 单元选择下拉菜单 -->
+                <div style="margin: 10px 0; text-align: center;">
+                    <select id="unit-select-dropdown" onchange="app.jumpToUnit(this.value)" 
+                            style="padding: 10px 15px; font-size: 16px; border: 2px solid var(--primary); border-radius: 8px; background: white; cursor: pointer;">
+                        <option value="">📍 选择单元跳转...</option>
+                    </select>
+                </div>
                 <div class="word-learning-area" id="word-learning-area">
                     <div class="flashcard-container" id="flashcard-container">
                         <div class="flashcard" id="flashcard">
@@ -151,9 +158,11 @@
                 </div>
                 <div class="word-games">
                     <h3>🎮 单词游戏</h3>
-                    <button class="game-btn" onclick="app.startSpellingGame()">✍️ 拼写挑战</button>
-                    <button class="game-btn" onclick="app.startMemoryGame()">🧠 记忆翻牌</button>
+                    <button class="game-btn" onclick="app.startSpellingGameInWordPage()">✍️ 拼写挑战</button>
+                    <button class="game-btn" onclick="app.startMemoryGameInWordPage()">🧠 记忆翻牌</button>
                 </div>
+                <!-- 单词页面游戏区域 -->
+                <div class="word-game-area" id="word-game-area" style="display: none; margin-top: 20px;"></div>
             </section>
 
             <!-- 句型分析页面 -->
