@@ -975,7 +975,7 @@ class EnglishHeroApp {
                     const completed = this.state.completedReadings.includes(article.id);
                     
                     return `
-                        <div class="level-card ${completed ? 'completed' : ''}" onclick="app.selectReading('${unitData.id}', ${index})">
+                        <div class="level-card ${completed ? 'completed' : ''}" onclick="(() => app.selectReading('${unitData.id}', ${index}))()">
                             <div class="level-number">${unitData.id}-${index + 1}</div>
                             <div class="level-info">
                                 <h4>${article.title}</h4>
