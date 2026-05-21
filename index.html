@@ -1538,7 +1538,7 @@ input[type="text"]:focus, textarea:focus {
                 </div>
                 <!-- 单元选择下拉菜单 -->
                 <div style="margin: 10px 0; text-align: center;">
-                    <select id="reading-unit-select" onchange="app.jumpToReadingUnit(this.value)" 
+                    <select id="reading-unit-select" onchange="app.jumpToReadingUnit(parseInt(this.value))" 
                             style="padding: 10px 15px; font-size: 16px; border: 2px solid var(--primary); border-radius: 8px; background: white; cursor: pointer;">
                         <option value="">📍 选择单元跳转...</option>
                     </select>
@@ -4586,28 +4586,6 @@ class EnglishHeroApp {
         this.renderReadingContent();
     }
     
-    renderReadingContent() {
-        const passageArea = document.getElementById('passage-area');
-        if (!passageArea || !this.currentReading) return;
-        
-        document.getElementById('passage-title').textContent = this.currentReading.title;
-        document.getElementById('passage-text').innerHTML = this.formatPassage(this.currentReading.content);
-        
-        // Add recording UI
-        const recordingUI = document.getElementById('recording-ui');
-        if (recordingUI) {
-            recordingUI.innerHTML = `
-                <div style="text-align: center; margin: 20px 0; padding: 20px; background: #FFF5F5; border-radius: 16px;">
-                    <p style="font-size: 20px; font-weight: 700; margin-bottom: 10px;">🎙️ 朗读录音</p>
-                    <p id="record-status" style="color: #666; margin-bottom: 15px;">点击开始录音，朗读上面的文章</p>
-                    <button id="record-btn" class="record-btn" onclick="app.startRecording()">🎙️</button>
-                    <div id="recording-result" style="margin-top: 15px;"></div>
-                </div>
-            `;
-        }
-        
-        this.renderReadingQuestion();
-    }
 
     
     
@@ -4660,28 +4638,6 @@ class EnglishHeroApp {
     }
     
     
-    renderReadingContent() {
-        const passageArea = document.getElementById('passage-area');
-        if (!passageArea || !this.currentReading) return;
-        
-        document.getElementById('passage-title').textContent = this.currentReading.title;
-        document.getElementById('passage-text').innerHTML = this.formatPassage(this.currentReading.content);
-        
-        // Add recording UI
-        const recordingUI = document.getElementById('recording-ui');
-        if (recordingUI) {
-            recordingUI.innerHTML = `
-                <div style="text-align: center; margin: 20px 0; padding: 20px; background: #FFF5F5; border-radius: 16px;">
-                    <p style="font-size: 20px; font-weight: 700; margin-bottom: 10px;">🎙️ 朗读录音</p>
-                    <p id="record-status" style="color: #666; margin-bottom: 15px;">点击开始录音，朗读上面的文章</p>
-                    <button id="record-btn" class="record-btn" onclick="app.startRecording()">🎙️</button>
-                    <div id="recording-result" style="margin-top: 15px;"></div>
-                </div>
-            `;
-        }
-        
-        this.renderReadingQuestion();
-    }
 
     formatPassage(content) {
         return content.split('\n\n').map(para => `<p style="margin-bottom: 12px;">${para}</p>`).join('');
