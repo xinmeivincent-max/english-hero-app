@@ -4606,7 +4606,19 @@ class EnglishHeroApp {
         // ========== 阅读理解 (新数据结构) ==========
     renderReading() {
         const levels = document.getElementById('reading-levels');
+        const content = document.getElementById('reading-content');
         if (!levels) return;
+        
+        // 如果正在阅读文章，保持当前状态
+        if (this.currentReading && content) {
+            levels.style.display = 'none';
+            content.style.display = 'block';
+            return;
+        }
+        
+        // 否则显示文章列表
+        if (levels) levels.style.display = 'block';
+        if (content) content.style.display = 'none';
         
         // 更新阅读页面单元选择下拉菜单 - 显示所有单元
         this.updateReadingUnitDropdown();
