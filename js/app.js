@@ -1034,9 +1034,19 @@ class EnglishHeroApp {
         
         if (!this.currentReading) return;
         
-        // 隐藏文章列表，显示文章内容
+        // 确保 content 元素存在
+        if (!content) {
+            console.error('reading-content 元素不存在');
+            return;
+        }
+        
+        // 隐藏列表，显示内容
         if (levels) levels.style.display = 'none';
-        if (content) content.style.display = 'block';
+        content.style.display = 'block';
+        
+        // 确保 content 可见（可能被 CSS 隐藏）
+        content.style.visibility = 'visible';
+        content.style.opacity = '1';
         
         // 更新标题
         const title = document.getElementById('passage-title');
