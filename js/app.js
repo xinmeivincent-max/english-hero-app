@@ -1009,7 +1009,7 @@ class EnglishHeroApp {
         this.renderReadingContent();
     }
     
-    renderReadingContent() {
+    renderReadingContent = () => {
         const levels = document.getElementById('reading-levels');
         const content = document.getElementById('reading-content');
         
@@ -1041,7 +1041,7 @@ class EnglishHeroApp {
         }
     }
     
-    backToReadingList() {
+    backToReadingList = () => {
         const levels = document.getElementById('reading-levels');
         const content = document.getElementById('reading-content');
         
