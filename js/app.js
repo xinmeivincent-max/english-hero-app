@@ -956,13 +956,20 @@ class EnglishHeroApp {
 
     // ========== 阅读理解（纯做题模式） ==========
     renderReading() {
+        console.log('renderReading 被调用');
+        
         // 更新单元下拉菜单
         const dropdown = document.getElementById('reading-unit-select');
+        console.log('dropdown 元素:', dropdown);
+        
         if (dropdown) {
-            dropdown.innerHTML = '<option value="">📍 选择单元...</option>' + 
-                this.data.readingPassages.units.map((unit, index) => {
-                    return `<option value="${unit.id}">${unit.name} - ${unit.theme}</option>`;
-                }).join('');
+            const options = this.data.readingPassages.units.map((unit) => {
+                return `<option value="${unit.id}">${unit.name} - ${unit.theme}</option>`;
+            }).join('');
+            dropdown.innerHTML = '<option value="">📍 选择单元...</option>' + options;
+            console.log('下拉菜单已更新，单元数:', this.data.readingPassages.units.length);
+        } else {
+            console.error('reading-unit-select 元素不存在');
         }
         
         // 重置显示
@@ -970,6 +977,8 @@ class EnglishHeroApp {
         const quizEmpty = document.getElementById('reading-quiz-empty');
         if (quizContent) quizContent.style.display = 'none';
         if (quizEmpty) quizEmpty.style.display = 'block';
+        
+        console.log('renderReading 完成');
     }
     
     selectReadingUnit(unitId) {
