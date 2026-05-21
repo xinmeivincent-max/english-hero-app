@@ -1348,7 +1348,6 @@ input[type="text"]:focus, textarea:focus {
 </style>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&display=swap" rel="stylesheet">
-    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
 </head>
 <body>
     <!-- 加载画面 -->
@@ -5583,14 +5582,6 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 </script>
     
-    <script>
-        // 检查COURSE_DATA是否存在（在数据加载后检查）
-        if (typeof COURSE_DATA === 'undefined') {
-            document.getElementById('error-message').textContent = 'COURSE_DATA 未定义';
-            document.getElementById('error-details').textContent = '课程数据加载失败，请检查网络连接';
-            document.getElementById('error-screen').style.display = 'block';
-            document.getElementById('loading-screen').style.display = 'none';
-        }
-    </script>
+    
 </body>
 </html>
