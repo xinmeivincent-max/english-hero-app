@@ -525,17 +525,18 @@ select {
 
 .flashcard-container {
     perspective: 1000px;
-    margin-bottom: 24px;
-    min-height: 400px;
+    margin-bottom: 16px;
+    min-height: 320px;
 }
 
 .flashcard {
     position: relative;
     width: 100%;
-    min-height: 280px;
+    min-height: 200px;
+    max-height: 220px;
     transform-style: preserve-3d;
     transition: transform 0.6s;
-    margin-bottom: 20px;
+    margin-bottom: 12px;
 }
 
 .flashcard.flipped {
@@ -547,17 +548,19 @@ select {
     top: 0;
     left: 0;
     width: 100%;
-    min-height: 280px;
+    min-height: 200px;
+    max-height: 220px;
     backface-visibility: hidden;
     -webkit-backface-visibility: hidden;
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    padding: 24px;
+    padding: 16px;
     background: linear-gradient(135deg, #FFF5F5 0%, #FFF 100%);
     border-radius: var(--radius-md);
     border: 3px solid var(--primary);
+    overflow: hidden;
 }
 
 .flashcard-back {
@@ -567,45 +570,45 @@ select {
 }
 
 .word-image {
-    font-size: 60px;
-    margin-bottom: 12px;
+    font-size: 48px;
+    margin-bottom: 8px;
 }
 
 .word-text {
-    font-size: 32px;
+    font-size: 28px;
     font-weight: 800;
-    margin-bottom: 8px;
+    margin-bottom: 4px;
     color: var(--text-primary);
 }
 
 .word-phonetic {
-    font-size: 18px;
+    font-size: 16px;
     color: var(--text-secondary);
-    margin-bottom: 12px;
+    margin-bottom: 8px;
 }
 
 .word-meaning {
-    font-size: 28px;
+    font-size: 24px;
     font-weight: 700;
     color: var(--success);
-    margin-bottom: 12px;
+    margin-bottom: 8px;
 }
 
 .word-example {
-    font-size: 16px;
+    font-size: 14px;
     color: var(--text-secondary);
     text-align: center;
-    line-height: 1.6;
+    line-height: 1.4;
 }
 
 .play-sound-btn {
-    margin-top: 12px;
-    padding: 8px 20px;
+    margin-top: 8px;
+    padding: 6px 16px;
     border: none;
     background: var(--secondary);
     color: white;
-    border-radius: 12px;
-    font-size: 16px;
+    border-radius: 10px;
+    font-size: 14px;
     font-weight: 700;
     cursor: pointer;
     transition: all 0.2s;
