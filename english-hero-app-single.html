@@ -2957,19 +2957,23 @@ class EnglishHeroApp {
             this.addXP(10);
             this.updateTaskProgress('sentence');
             
-            // 显示正确反馈
+            // 显示正确反馈 - 在单词旁边显示✅
+            this.selectedWord.innerHTML += ' ✅';
+            
             if (feedbackEl) {
-                feedbackEl.innerHTML = `<div style="color: #4CAF50; font-weight: bold; padding: 10px; background: #E8F5E9; border-radius: 8px; margin-top: 10px;">
-                    ✅ 回答正确！+10 XP
+                feedbackEl.innerHTML = `<div style="color: #4CAF50; font-weight: bold; padding: 10px; background: #E8F5E9; border-radius: 8px; margin-top: 10px; text-align: center; font-size: 18px;">
+                    ✅ 回答正确！
                 </div>`;
             }
         } else {
             this.playSound('wrong');
             this.selectedWord.classList.add('wrong');
             
-            // 显示错误反馈和正确答案
+            // 显示错误反馈 - 在单词旁边显示❌
+            this.selectedWord.innerHTML += ' ❌';
+            
             if (feedbackEl) {
-                feedbackEl.innerHTML = `<div style="color: #f44336; font-weight: bold; padding: 10px; background: #FFEBEE; border-radius: 8px; margin-top: 10px;">
+                feedbackEl.innerHTML = `<div style="color: #f44336; font-weight: bold; padding: 10px; background: #FFEBEE; border-radius: 8px; margin-top: 10px; text-align: center; font-size: 18px;">
                     ❌ 回答错误！正确答案是：${correct}
                 </div>`;
             }
