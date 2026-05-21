@@ -4645,7 +4645,7 @@ class EnglishHeroApp {
         levels.innerHTML = html;
     }
     
-    selectReading(unitId, articleIndex) {
+    selectReading = (unitId, articleIndex) => {
         const unitData = this.data.readingPassages.units.find(u => u.id === unitId);
         if (!unitData || !unitData.articles[articleIndex]) return;
         
