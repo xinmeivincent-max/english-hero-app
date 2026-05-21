@@ -997,13 +997,17 @@ class EnglishHeroApp {
         
         levels.innerHTML = html;
         
-        // 根据当前状态显示列表或内容
-        if (this.currentReading) {
-            // 正在阅读文章，显示内容
-            if (levels) levels.style.display = 'none';
-            if (content) content.style.display = 'block';
+        // 默认显示1A文章内容（用于测试）
+        const unit1A = this.data.readingPassages.units.find(u => u.id === '1A');
+        if (unit1A && unit1A.articles && unit1A.articles.length > 0) {
+            this.currentReading = unit1A.articles[0];
+            this.currentReadingUnit = '1A';
+            this.currentQuestionIndex = 0;
+            this.readingAnswers = [];
+            this.readingStartTime = Date.now();
+            this.renderReadingContent();
         } else {
-            // 未阅读文章，显示列表
+            // 如果找不到1A文章，显示列表
             if (levels) levels.style.display = 'block';
             if (content) content.style.display = 'none';
         }
