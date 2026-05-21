@@ -1349,7 +1349,7 @@ input[type="text"]:focus, textarea:focus {
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&display=swap" rel="stylesheet">
 </head>
-<body data-version="37.1">
+<body>
     <!-- 加载画面 -->
     <div id="loading-screen" class="loading-screen">
         <div class="loading-content">
@@ -3771,8 +3771,14 @@ class EnglishHeroApp {
     init() {
         this.checkDailyReset();
         this.renderHeader();
-        this.renderHome();
         this.setupEventListeners();
+        
+        // 根据保存的页面状态导航到正确页面
+        if (this.currentPage && this.currentPage !== 'home') {
+            this.navigate(this.currentPage);
+        } else {
+            this.renderHome();
+        }
         
         // 模拟加载
         setTimeout(() => {
