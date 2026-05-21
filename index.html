@@ -1162,13 +1162,24 @@ select {
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: 6px;
-    padding: 12px;
+    gap: 4px;
+    padding: 8px 4px;
     border: none;
     background: none;
     cursor: pointer;
     transition: all 0.2s;
     color: var(--text-light);
+    min-width: 0;
+}
+
+.nav-item .nav-icon {
+    font-size: 24px;
+}
+
+.nav-item .nav-label {
+    font-size: 12px;
+    font-weight: 700;
+    white-space: nowrap;
 }
 
 .nav-item.active {
@@ -1176,11 +1187,11 @@ select {
 }
 
 .nav-icon {
-    font-size: 28px;
+    font-size: 24px;
 }
 
 .nav-label {
-    font-size: 14px;
+    font-size: 12px;
     font-weight: 700;
 }
 
@@ -1636,6 +1647,10 @@ input[type="text"]:focus, textarea:focus {
             <button class="nav-item" onclick="app.navigate('words')">
                 <span class="nav-icon">📚</span>
                 <span class="nav-label">单词</span>
+            </button>
+            <button class="nav-item" onclick="app.navigate('sentences')">
+                <span class="nav-icon">🔍</span>
+                <span class="nav-label">句型</span>
             </button>
             <button class="nav-item" onclick="app.navigate('reading')">
                 <span class="nav-icon">📖</span>
