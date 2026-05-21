@@ -526,6 +526,7 @@ select {
 .flashcard-container {
     perspective: 1000px;
     margin-bottom: 24px;
+    min-height: 350px;
 }
 
 .flashcard {
@@ -542,9 +543,12 @@ select {
 
 .flashcard-front, .flashcard-back {
     position: absolute;
+    top: 0;
+    left: 0;
     width: 100%;
     min-height: 300px;
     backface-visibility: hidden;
+    -webkit-backface-visibility: hidden;
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -1706,6 +1710,8 @@ input[type="text"]:focus, textarea:focus {
     </script>
 
     <!-- 引入数据 -->
+    
+    <!-- 引入主应用逻辑 -->
     <script>
 // ============================================
 // 英语小英雄 - 完整课程数据
@@ -3431,9 +3437,6 @@ if (typeof module !== 'undefined' && module.exports) {
   module.exports = COURSE_DATA;
 }
 
-</script>
-    <!-- 引入主应用逻辑 -->
-    <script>
 // ============================================
 // 英语小英雄 - 主应用逻辑
 // Reading Explorer 3 闯关学习应用
@@ -4289,7 +4292,7 @@ class EnglishHeroApp {
         // 为每个 part 创建可点击的标记
         question.parts.forEach((part, i) => {
             // 转义特殊字符，避免正则表达式错误
-            const escapedText = part.text.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+            const escapedText = part.text.replace(/[.*+?^${}()|[\]\\]/g, '\\<script src="js/app.js"></script>');
             const regex = new RegExp('(' + escapedText + ')', 'gi');
             sentenceHtml = sentenceHtml.replace(regex, `<span class="analysis-word" data-correct="${part.correct}" data-index="${i}" onclick="app.selectWordPart(this)">$1</span>`);
         });
