@@ -7,22 +7,183 @@ class EnglishHeroApp {
     constructor() {
         this.data = COURSE_DATA;
         this.state = this.loadState();
-        this.currentPage = 'home';
-        this.currentUnit = 0;
+        this.currentPage = this.state.currentPage || 'home';
+        this.currentUnit = this.state.currentUnit || 0;
         this.currentWordIndex = 0;
         this.currentPattern = null;
         this.currentReading = null;
         this.gameState = {};
+        this.audioContext = null;
+        this.readingAnswers = [];
+        this.readingTimer = null;
+        this.speedTimer = null;
+        this.mediaRecorder = null;
+        this.recordedChunks = [];
+        this.isRecording = false;
         
         this.init();
+    }
+    
+    // 获取单元ID（将数字索引转换为单元ID格式）
+    getUnitId(index) {
+        const unitMap = {
+            1: "1A", 2: "1B", 3: "2A", 4: "2B",
+            5: "3A", 6: "3B", 7: "4A", 8: "4B",
+            9: "5A", 10: "5B", 11: "6A", 12: "6B"
+        };
+        return unitMap[index] || "1A";
+    }
+
+    // 音效播放
+    playSound(type) {
+        try {
+            if (!this.audioContext) {
+                this.audioContext = new (window.AudioContext || window.webkitAudioContext)();
+            }
+            
+            const ctx = this.audioContext;
+            const oscillator = ctx.createOscillator();
+            const gainNode = ctx.createGain();
+            
+            oscillator.connect(gainNode);
+            gainNode.connect(ctx.destination);
+            
+            switch(type) {
+                case 'correct':
+                    oscillator.frequency.setValueAtTime(523.25, ctx.currentTime); // C5
+                    oscillator.frequency.setValueAtTime(659.25, ctx.currentTime + 0.1); // E5
+                    gainNode.gain.setValueAtTime(0.3, ctx.currentTime);
+                    gainNode.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.3);
+                    oscillator.start(ctx.currentTime);
+                    oscillator.stop(ctx.currentTime + 0.3);
+                    break;
+                case 'wrong':
+                    oscillator.frequency.setValueAtTime(200, ctx.currentTime);
+                    gainNode.gain.setValueAtTime(0.3, ctx.currentTime);
+                    gainNode.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.4);
+                    oscillator.start(ctx.currentTime);
+                    oscillator.stop(ctx.currentTime + 0.4);
+                    break;
+                case 'click':
+                    oscillator.frequency.setValueAtTime(800, ctx.currentTime);
+                    gainNode.gain.setValueAtTime(0.1, ctx.currentTime);
+                    gainNode.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.1);
+                    oscillator.start(ctx.currentTime);
+                    oscillator.stop(ctx.currentTime + 0.1);
+                    break;
+                case 'match':
+                    oscillator.frequency.setValueAtTime(440, ctx.currentTime);
+                    oscillator.frequency.setValueAtTime(554, ctx.currentTime + 0.1);
+                    oscillator.frequency.setValueAtTime(659, ctx.currentTime + 0.2);
+                    gainNode.gain.setValueAtTime(0.3, ctx.currentTime);
+                    gainNode.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.4);
+                    oscillator.start(ctx.currentTime);
+                    oscillator.stop(ctx.currentTime + 0.4);
+                    break;
+                case 'complete':
+                    oscillator.frequency.setValueAtTime(523, ctx.currentTime);
+                    oscillator.frequency.setValueAtTime(659, ctx.currentTime + 0.15);
+                    oscillator.frequency.setValueAtTime(784, ctx.currentTime + 0.3);
+                    oscillator.frequency.setValueAtTime(1047, ctx.currentTime + 0.45);
+                    gainNode.gain.setValueAtTime(0.3, ctx.currentTime);
+                    gainNode.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.8);
+                    oscillator.start(ctx.currentTime);
+                    oscillator.stop(ctx.currentTime + 0.8);
+                    break;
+            }
+        } catch (e) {
+            // 音效播放失败不影响功能
+        }
+    }
+
+    // ========== 录音功能 ==========
+    startRecording() {
+        if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+            alert('您的浏览器不支持录音功能');
+            return;
+        }
+        
+        navigator.mediaDevices.getUserMedia({ audio: true })
+            .then(stream => {
+                this.mediaRecorder = new MediaRecorder(stream);
+                this.recordedChunks = [];
+                this.isRecording = true;
+                
+                this.mediaRecorder.ondataavailable = (event) => {
+                    if (event.data.size > 0) {
+                        this.recordedChunks.push(event.data);
+                    }
+                };
+                
+                this.mediaRecorder.onstop = () => {
+                    const blob = new Blob(this.recordedChunks, { type: 'audio/webm' });
+                    const url = URL.createObjectURL(blob);
+                    this.showRecordingResult(url);
+                    this.isRecording = false;
+                    
+                    // Stop all tracks
+                    stream.getTracks().forEach(track => track.stop());
+                };
+                
+                this.mediaRecorder.start();
+                this.updateRecordingUI(true);
+            })
+            .catch(err => {
+                console.error('录音错误:', err);
+                alert('无法访问麦克风，请检查权限设置');
+            });
+    }
+    
+    stopRecording() {
+        if (this.mediaRecorder && this.isRecording) {
+            this.mediaRecorder.stop();
+            this.updateRecordingUI(false);
+        }
+    }
+    
+    updateRecordingUI(recording) {
+        const btn = document.getElementById('record-btn');
+        const status = document.getElementById('record-status');
+        if (btn) {
+            if (recording) {
+                btn.classList.add('recording');
+                btn.textContent = '⏹️';
+                btn.onclick = () => this.stopRecording();
+            } else {
+                btn.classList.remove('recording');
+                btn.textContent = '🎙️';
+                btn.onclick = () => this.startRecording();
+            }
+        }
+        if (status) {
+            status.textContent = recording ? '正在录音...点击停止' : '点击开始录音';
+            status.style.color = recording ? '#f44336' : '#666';
+        }
+    }
+    
+    showRecordingResult(audioUrl) {
+        const container = document.getElementById('recording-result');
+        if (container) {
+            container.innerHTML = `
+                <p style="font-weight: 700; margin-bottom: 10px;">🎵 录音完成！</p>
+                <audio controls src="${audioUrl}" style="width: 100%; margin-bottom: 10px;"></audio>
+                <button class="btn-secondary" onclick="this.parentElement.innerHTML=''" style="font-size: 16px; padding: 10px 20px;">清除录音</button>
+            `;
+        }
     }
 
     // 初始化
     init() {
         this.checkDailyReset();
         this.renderHeader();
-        this.renderHome();
         this.setupEventListeners();
+        
+        // 根据保存的页面状态导航到正确页面
+        if (this.currentPage && this.currentPage !== 'home') {
+            this.navigate(this.currentPage);
+        } else {
+            this.renderHome();
+        }
         
         // 模拟加载
         setTimeout(() => {
@@ -44,7 +205,7 @@ class EnglishHeroApp {
             completedReadings: [],
             completedPatterns: [],
             achievements: [],
-            dailyTasks: this.generateDailyTasks(),
+            dailyTasks: [],
             dailyProgress: {},
             mistakes: [],
             gameScores: {
@@ -55,7 +216,9 @@ class EnglishHeroApp {
             totalWords: 0,
             totalReadings: 0,
             totalCorrect: 0,
-            totalQuestions: 0
+            totalQuestions: 0,
+            currentPage: 'home',
+            currentUnit: 0
         };
         
         try {
@@ -85,6 +248,11 @@ class EnglishHeroApp {
     checkDailyReset() {
         const today = new Date().toDateString();
         const lastDate = this.state.lastStudyDate;
+        
+        // 如果dailyTasks为空，生成新的任务
+        if (!this.state.dailyTasks || this.state.dailyTasks.length === 0) {
+            this.state.dailyTasks = this.generateDailyTasks();
+        }
         
         if (lastDate) {
             const last = new Date(lastDate);
@@ -143,6 +311,9 @@ class EnglishHeroApp {
         }
         
         this.currentPage = page;
+        this.state.currentPage = page;
+        this.state.currentUnit = this.currentUnit;
+        this.saveState();
         
         // 渲染页面内容
         switch(page) {
@@ -333,6 +504,7 @@ class EnglishHeroApp {
 
     // 显示成就弹窗
     showAchievement(achievement) {
+        this.playSound('complete');
         const popup = document.getElementById('achievement-popup');
         document.getElementById('achievement-name').textContent = achievement.name;
         document.getElementById('achievement-desc').textContent = achievement.desc;
@@ -347,6 +519,7 @@ class EnglishHeroApp {
 
     // 显示升级弹窗
     showLevelUp(level) {
+        this.playSound('complete');
         const popup = document.getElementById('levelup-popup');
         document.getElementById('levelup-text').textContent = 
             `你升级到了 ${level.icon} ${level.name}！`;
@@ -370,7 +543,59 @@ class EnglishHeroApp {
             </button>
         `).join('');
         
+        // 更新下拉菜单选项
+        this.updateUnitDropdown();
+        
         this.renderFlashcard();
+    }
+    
+    updateUnitDropdown() {
+        const dropdown = document.getElementById('unit-select-dropdown');
+        if (!dropdown) return;
+        
+        // 保存当前选择
+        const currentValue = dropdown.value;
+        
+        // 重新生成选项
+        let options = '<option value="">📍 选择单元跳转...</option>';
+        this.data.vocabulary.forEach((unit, index) => {
+            const isCurrent = index === this.currentUnit;
+            options += `<option value="${index}" ${isCurrent ? 'selected' : ''}>${unit.unitName}${isCurrent ? ' (当前)' : ''}</option>`;
+        });
+        dropdown.innerHTML = options;
+        
+        // 恢复选择（如果不是空值）
+        if (currentValue) {
+            dropdown.value = currentValue;
+        }
+    }
+    
+    jumpToUnit(index) {
+        if (index === '' || index === null || index === undefined) return;
+        
+        index = parseInt(index);
+        if (isNaN(index) || index < 0 || index >= this.data.vocabulary.length) return;
+        
+        this.currentUnit = index;
+        this.currentWordIndex = 0;
+        
+        // 隐藏游戏区域
+        const wordGameArea = document.getElementById('word-game-area');
+        if (wordGameArea) wordGameArea.style.display = 'none';
+        
+        this.renderWords();
+        
+        // 显示跳转成功提示
+        const unit = this.data.vocabulary[index];
+        const feedbackEl = document.getElementById('analysis-feedback');
+        if (feedbackEl) {
+            feedbackEl.innerHTML = `<div style="color: #4CAF50; font-weight: bold; padding: 10px; background: #E8F5E9; border-radius: 8px; margin-top: 10px; text-align: center;">
+                ✅ 已跳转到 ${unit.unitName}
+            </div>`;
+            setTimeout(() => {
+                feedbackEl.innerHTML = '';
+            }, 2000);
+        }
     }
 
     selectUnit(index) {
@@ -436,12 +661,17 @@ class EnglishHeroApp {
         this.checkAchievement('word_50');
         
         this.saveState();
+        this.playSound('correct');
         
         // 检查是否是最后一个单词
         if (this.currentWordIndex >= unit.words.length - 1) {
             this.showWordCompletionMessage();
         } else {
-            this.nextWord();
+            // 翻转回正面再显示下一个
+            document.getElementById('flashcard').classList.remove('flipped');
+            setTimeout(() => {
+                this.nextWord();
+            }, 300);
         }
     }
 
@@ -458,12 +688,17 @@ class EnglishHeroApp {
         }
         
         this.saveState();
+        this.playSound('click');
         
         // 检查是否是最后一个单词
         if (this.currentWordIndex >= unit.words.length - 1) {
             this.showWordCompletionMessage();
         } else {
-            this.nextWord();
+            // 翻转回正面再显示下一个
+            document.getElementById('flashcard').classList.remove('flipped');
+            setTimeout(() => {
+                this.nextWord();
+            }, 300);
         }
     }
 
@@ -500,12 +735,86 @@ class EnglishHeroApp {
         const list = document.getElementById('pattern-list');
         if (!list) return;
         
-        list.innerHTML = this.data.sentencePatterns.map((pattern, index) => `
-            <div class="pattern-card" onclick="app.selectPattern(${index})">
-                <h4>${pattern.title}</h4>
-                <p>${pattern.description}</p>
-            </div>
-        `).join('');
+        // 更新句型页面单元选择下拉菜单
+        this.updateSentenceUnitDropdown();
+        
+        // 默认显示当前单元的句型
+        const currentUnitId = this.currentUnit + 1;
+        const unitPatterns = this.data.sentencePatterns.filter(p => p.unitId === currentUnitId);
+        
+        if (unitPatterns.length === 0) {
+            list.innerHTML = `<div style="text-align: center; padding: 20px; color: var(--text-secondary);">
+                该单元暂无句型练习
+            </div>`;
+        } else {
+            list.innerHTML = unitPatterns.map((pattern) => {
+                const originalIndex = this.data.sentencePatterns.indexOf(pattern);
+                return `
+                    <div class="pattern-card" onclick="app.selectPattern(${originalIndex})">
+                        <h4>${pattern.title}</h4>
+                        <p>${pattern.description}</p>
+                        <p style="font-size: 14px; color: var(--text-light); margin-top: 5px;">${pattern.unitName}</p>
+                    </div>
+                `;
+            }).join('');
+        }
+    }
+    
+    updateSentenceUnitDropdown() {
+        const dropdown = document.getElementById('sentence-unit-select');
+        if (!dropdown) return;
+        
+        let options = '<option value="">📍 选择单元跳转...</option>';
+        this.data.units.forEach((unit, index) => {
+            options += `<option value="${index}">${unit.name}</option>`;
+        });
+        dropdown.innerHTML = options;
+    }
+    
+    jumpToSentenceUnit(index) {
+        if (index === '' || index === null || index === undefined) return;
+        
+        index = parseInt(index);
+        if (isNaN(index) || index < 0 || index >= this.data.units.length) return;
+        
+        // 根据单元过滤句型
+        const unitName = this.data.units[index].name;
+        const unitId = index + 1;
+        this.currentSentenceUnit = index;
+        
+        // 重新渲染句型列表，只显示当前单元的句型
+        const list = document.getElementById('pattern-list');
+        if (list) {
+            const filteredPatterns = this.data.sentencePatterns.filter(p => p.unitId === unitId);
+            
+            if (filteredPatterns.length === 0) {
+                list.innerHTML = `<div style="text-align: center; padding: 20px; color: var(--text-secondary);">
+                    该单元暂无句型练习
+                </div>`;
+            } else {
+                list.innerHTML = filteredPatterns.map((pattern) => {
+                    const originalIndex = this.data.sentencePatterns.indexOf(pattern);
+                    return `
+                        <div class="pattern-card" onclick="app.selectPattern(${originalIndex})">
+                            <h4>${pattern.title}</h4>
+                            <p>${pattern.description}</p>
+                            <p style="font-size: 14px; color: var(--text-light); margin-top: 5px;">${pattern.unitName}</p>
+                        </div>
+                    `;
+                }).join('');
+            }
+        }
+        
+        // 显示跳转提示
+        const feedbackEl = document.getElementById('analysis-feedback');
+        if (feedbackEl) {
+            feedbackEl.innerHTML = `<div style="color: #4CAF50; font-weight: bold; padding: 10px; background: #E8F5E9; border-radius: 8px; margin-top: 10px; text-align: center;">
+                ✅ 已切换到 ${unitName}
+            </div>`;
+            setTimeout(() => {
+                feedbackEl.innerHTML = '';
+            }, 2000);
+        }
     }
 
     selectPattern(index) {
@@ -559,25 +868,18 @@ class EnglishHeroApp {
         const container = document.getElementById('sentence-words');
         if (!container) return;
         
-        // 将句子拆分成单词
-        const words = question.sentence.split(/\s+/);
+        // 创建句子显示，将可点击的部分高亮
+        let sentenceHtml = question.sentence;
         
-        container.innerHTML = words.map((word, i) => {
-            const cleanWord = word.replace(/[.,!?;:]$/, '');
-            
-            // 检查这个单词是否是题目中定义的部件之一
-            const part = question.parts.find(p => {
-                // 检查单词是否匹配部件文本（去除标点）
-                return p.text.toLowerCase() === cleanWord.toLowerCase() ||
-                       word.toLowerCase().includes(p.text.toLowerCase());
-            });
-            
-            if (part) {
-                return `<span class="analysis-word" data-correct="${part.correct}" onclick="app.selectWordPart(this)">${word}</span>`;
-            }
-            
-            return `<span style="padding: 4px; display: inline-block;">${word}</span>`;
-        }).join(' ');
+        // 为每个 part 创建可点击的标记
+        question.parts.forEach((part, i) => {
+            // 转义特殊字符，避免正则表达式错误
+            const escapedText = part.text.replace(/[.*+?^${}()|[\]\\\\]/g, '\\\\$\u0026');
+            const regex = new RegExp('(' + escapedText + ')', 'gi');
+            sentenceHtml = sentenceHtml.replace(regex, `<span class="analysis-word" data-correct="${part.correct}" data-index="${i}" onclick="app.selectWordPart(this)">$1</span>`);
+        });
+        
+        container.innerHTML = `<div style="line-height: 2; font-size: 18px;">${sentenceHtml}</div>`;
         
         // 渲染选项
         const optionsContainer = document.getElementById('analysis-options');
@@ -607,64 +909,184 @@ class EnglishHeroApp {
         }
         
         const correct = this.selectedWord.dataset.correct;
+        const feedbackEl = document.getElementById('analysis-feedback');
+        const selectedWord = this.selectedWord;
+        
+        // Store original text without any icons
+        let originalText = selectedWord.dataset.word || selectedWord.textContent;
+        originalText = originalText.replace(/[✅❌]\s*$/, '').trim();
         
         if (type === correct) {
-            this.selectedWord.classList.add('correct');
-            this.selectedWord.classList.remove('selected');
+            this.playSound('correct');
+            selectedWord.classList.remove('selected', 'wrong');
+            selectedWord.classList.add('correct');
+            selectedWord.textContent = originalText + ' ✅';
+            selectedWord.style.backgroundColor = '#E8F5E9';
+            selectedWord.style.borderColor = '#4CAF50';
             this.addXP(10);
             this.updateTaskProgress('sentence');
+            
+            if (feedbackEl) {
+                feedbackEl.innerHTML = '<div style="color: #4CAF50; font-weight: bold; padding: 15px; background: #E8F5E9; border-radius: 8px; margin-top: 10px; text-align: center; font-size: 20px;">✅ 回答正确！+10 XP</div>';
+            }
         } else {
-            this.selectedWord.classList.add('wrong');
+            this.playSound('wrong');
+            selectedWord.classList.remove('selected', 'correct');
+            selectedWord.classList.add('wrong');
+            selectedWord.textContent = originalText + ' ❌';
+            selectedWord.style.backgroundColor = '#FFEBEE';
+            selectedWord.style.borderColor = '#f44336';
+            
+            if (feedbackEl) {
+                feedbackEl.innerHTML = '<div style="color: #f44336; font-weight: bold; padding: 15px; background: #FFEBEE; border-radius: 8px; margin-top: 10px; text-align: center; font-size: 20px;">❌ 回答错误！正确答案是：' + correct + '</div>';
+            }
+            
             setTimeout(() => {
-                this.selectedWord.classList.remove('wrong');
-            }, 1000);
+                if (selectedWord) {
+                    selectedWord.classList.remove('wrong');
+                    selectedWord.textContent = originalText;
+                    selectedWord.style.backgroundColor = '';
+                    selectedWord.style.borderColor = '';
+                }
+            }, 2000);
         }
         
         this.selectedWord = null;
     }
 
     // ========== 阅读理解 ==========
+        // ========== 阅读理解 (新数据结构) ==========
     renderReading() {
         const levels = document.getElementById('reading-levels');
         if (!levels) return;
         
-        levels.innerHTML = this.data.readingPassages.map((passage, index) => {
-            const completed = this.state.completedReadings.includes(passage.id);
-            
-            return `
-                <div class="level-card ${completed ? 'completed' : ''}" onclick="app.selectReading(${index})">
-                    <div class="level-number">${index + 1}</div>
-                    <div class="level-info">
-                        <h4>${passage.title}</h4>
-                        <p>${passage.subtitle} · ${passage.difficulty} · ${passage.questions.length}题</p>
-                    </div>
-                    <div class="level-xp">+${passage.xp}XP</div>
-                </div>
-            `;
-        }).join('');
+        // 更新阅读页面单元选择下拉菜单 - 显示所有单元
+        this.updateReadingUnitDropdown();
+        
+        // 显示所有单元的所有文章
+        let html = '';
+        this.data.readingPassages.units.forEach(unitData => {
+            if (unitData.articles && unitData.articles.length > 0) {
+                html += `<div style="margin: 15px 0 10px 0; padding: 10px; background: var(--primary-light); border-radius: 8px; font-weight: bold; color: var(--primary);">
+                    ${unitData.name} - ${unitData.theme}
+                </div>`;
+                
+                html += unitData.articles.map((article, index) => {
+                    const completed = this.state.completedReadings.includes(article.id);
+                    
+                    return `
+                        <div class="level-card ${completed ? 'completed' : ''}" onclick="app.selectReading('${unitData.id}', ${index})">
+                            <div class="level-number">${unitData.id}-${index + 1}</div>
+                            <div class="level-info">
+                                <h4>${article.title}</h4>
+                                <p>${article.subtitle} · ${article.questions.length}题</p>
+                            </div>
+                            <div class="level-xp">+${100 + (index * 20)}XP</div>
+                        </div>
+                    `;
+                }).join('');
+            }
+        });
+        
+        if (html === '') {
+            html = `<div style="text-align: center; padding: 20px; color: var(--text-secondary);">
+                暂无阅读文章
+            </div>`;
+        }
+        
+        levels.innerHTML = html;
     }
-
-    selectReading(index) {
-        this.currentReading = this.data.readingPassages[index];
+    
+    selectReading(unitId, articleIndex) {
+        const unitData = this.data.readingPassages.units.find(u => u.id === unitId);
+        if (!unitData || !unitData.articles[articleIndex]) return;
+        
+        this.currentReading = unitData.articles[articleIndex];
+        this.currentReadingUnit = unitId;
         this.currentQuestionIndex = 0;
         this.readingAnswers = [];
         this.readingStartTime = Date.now();
         this.renderReadingContent();
     }
-
+    
     renderReadingContent() {
-        const passageArea = document.getElementById('passage-area');
-        if (!passageArea || !this.currentReading) return;
+        const levels = document.getElementById('reading-levels');
+        const content = document.getElementById('reading-content');
         
-        document.getElementById('passage-title').textContent = this.currentReading.title;
-        document.getElementById('passage-text').innerHTML = this.formatPassage(this.currentReading.content);
+        if (!this.currentReading) return;
         
+        // 隐藏文章列表，显示文章内容
+        if (levels) levels.style.display = 'none';
+        if (content) content.style.display = 'block';
+        
+        // 更新标题
+        const title = document.getElementById('passage-title');
+        if (title) {
+            title.innerHTML = `${this.currentReading.title}<br><small style="color: var(--text-secondary);">${this.currentReading.subtitle}</small>`;
+        }
+        
+        // 更新文章内容
+        const text = document.getElementById('passage-text');
+        if (text) {
+            text.innerHTML = this.formatPassage(this.currentReading.content);
+        }
+        
+        // 显示第一题
         this.renderReadingQuestion();
-        this.startReadingTimer();
+        
+        // 添加返回按钮
+        const backBtn = document.querySelector('#page-reading .page-header h2');
+        if (backBtn) {
+            backBtn.innerHTML = `<span onclick="app.backToReadingList()" style="cursor: pointer;">← 返回列表</span> 📖 ${this.currentReading.title}`;
+        }
     }
-
+    
+    backToReadingList() {
+        const levels = document.getElementById('reading-levels');
+        const content = document.getElementById('reading-content');
+        
+        if (levels) levels.style.display = 'block';
+        if (content) content.style.display = 'none';
+        
+        // 恢复标题
+        const backBtn = document.querySelector('#page-reading .page-header h2');
+        if (backBtn) {
+            backBtn.innerHTML = '📖 阅读闯关';
+        }
+        
+        this.currentReading = null;
+        this.renderReading();
+    }
+    
+    updateReadingUnitDropdown() {
+        const dropdown = document.getElementById('reading-unit-select');
+        if (!dropdown) return;
+        
+        // 下拉菜单显示所有单元
+        dropdown.innerHTML = '<option value="">📍 选择单元跳转...</option>' + 
+            this.data.readingPassages.units.map((unit, index) => {
+                return `<option value="${index}">${unit.name} - ${unit.theme}</option>`;
+            }).join('');
+    }
+    
+    jumpToReadingUnit(index) {
+        if (index === '' || index === null || index === undefined) return;
+        
+        const unitData = this.data.readingPassages.units[index];
+        if (!unitData) return;
+        
+        // 滚动到对应单元
+        const levels = document.getElementById('reading-levels');
+        if (levels) {
+            const unitHeaders = levels.querySelectorAll('div[style*="background: var(--primary-light)"]');
+            if (unitHeaders[index]) {
+                unitHeaders[index].scrollIntoView({ behavior: 'smooth', block: 'start' });
+            }
+        }
+    }
+    
     formatPassage(content) {
-        return content.split('\n\n').map(para => `<p style="margin-bottom: 12px;">${para}</p>`).join('');
+        return content.split('\n\n').map(para => `<p style="margin-bottom: 12px; line-height: 1.6;">${para}</p>`).join('');
     }
 
     renderReadingQuestion() {
@@ -708,8 +1130,10 @@ class EnglishHeroApp {
         
         this.state.totalQuestions++;
         if (correct) {
+            this.playSound('correct');
             this.state.totalCorrect++;
         } else {
+            this.playSound('wrong');
             // 添加到错题本
             this.state.mistakes.push({
                 type: 'reading',
@@ -760,41 +1184,60 @@ class EnglishHeroApp {
         this.checkAchievement('reading_hero');
         this.saveState();
         
-        // 显示结果
+        this.playSound('complete');
+        
+        // 计算能力分析数据
+        const readingScore = accuracy;
+        const vocabScore = Math.min(100, this.state.totalWordsLearned * 5);
+        const grammarScore = Math.min(100, this.state.completedPatterns.length * 10);
+        const streakScore = Math.min(100, this.state.streak * 10);
+        
+        // 显示结果 + 能力分析
         const questionsContainer = document.getElementById('passage-questions');
         questionsContainer.innerHTML = `
-            <div class="question-card" style="text-align: center;">
+            <div style="text-align: center;">
                 <div style="font-size: 60px; margin-bottom: 16px;">${accuracy >= 80 ? '🎉' : accuracy >= 60 ? '👍' : '💪'}</div>
-                <h3 style="margin-bottom: 10px;">闯关完成！</h3>
-                <p style="font-size: 18px; font-weight: 700; margin-bottom: 8px;">
-                    ${correctCount}/${totalQuestions} 正确 (${accuracy}%)
-                </p>
-                <p style="color: var(--text-secondary); margin-bottom: 16px;">
-                    获得 ${xpEarned} XP
-                </p>
-                <button class="btn-primary" onclick="app.navigate('reading')">继续闯关</button>
+                <div class="ability-result">
+                    <h2>🎯 闯关完成！</h2>
+                    <p style="font-size: 20px; font-weight: 700; margin-bottom: 8px;">
+                        ${correctCount}/${totalQuestions} 正确 (${accuracy}%)
+                    </p>
+                    <p style="color: var(--text-secondary); margin-bottom: 20px;">
+                        获得 ${xpEarned} XP
+                    </p>
+                    
+                    <h3 style="font-size: 22px; margin: 24px 0 16px;">📊 能力分析</h3>
+                    <div class="ability-chart">
+                        <div class="ability-item">
+                            <div class="ability-name">📖 阅读理解</div>
+                            <div class="ability-score">${readingScore}分</div>
+                            <div class="ability-bar"><div class="ability-bar-fill" style="width: ${readingScore}%"></div></div>
+                        </div>
+                        <div class="ability-item">
+                            <div class="ability-name">📝 词汇掌握</div>
+                            <div class="ability-score">${vocabScore}分</div>
+                            <div class="ability-bar"><div class="ability-bar-fill" style="width: ${vocabScore}%"></div></div>
+                        </div>
+                        <div class="ability-item">
+                            <div class="ability-name">🔤 语法分析</div>
+                            <div class="ability-score">${grammarScore}分</div>
+                            <div class="ability-bar"><div class="ability-bar-fill" style="width: ${grammarScore}%"></div></div>
+                        </div>
+                        <div class="ability-item">
+                            <div class="ability-name">🔥 学习连续</div>
+                            <div class="ability-score">${streakScore}分</div>
+                            <div class="ability-bar"><div class="ability-bar-fill" style="width: ${streakScore}%"></div></div>
+                        </div>
+                    </div>
+                    
+                    <p style="font-size: 18px; color: var(--text-secondary); margin: 16px 0;">
+                        ${accuracy >= 80 ? '太棒了！你的阅读能力很强！' : accuracy >= 60 ? '不错！继续加油！' : '再接再厉，多练习会进步的！'}
+                    </p>
+                </div>
+                
+                <button class="btn-primary" onclick="app.navigate('reading')" style="margin-top: 20px;">继续闯关</button>
             </div>
         `;
-    }
-
-    startReadingTimer() {
-        const timerElement = document.getElementById('reading-timer');
-        if (!timerElement) return;
-        
-        const updateTimer = () => {
-            if (!this.currentReading || this.currentQuestionIndex >= this.currentReading.questions.length) {
-                clearInterval(this.readingTimer);
-                return;
-            }
-            
-            const elapsed = Math.floor((Date.now() - this.readingStartTime) / 1000);
-            const minutes = Math.floor(elapsed / 60);
-            const seconds = elapsed % 60;
-            timerElement.textContent = `⏱️ ${minutes}:${seconds.toString().padStart(2, '0')}`;
-        };
-        
-        this.readingTimer = setInterval(updateTimer, 1000);
-        updateTimer();
     }
 
     // ========== 游戏中心 ==========
@@ -804,7 +1247,227 @@ class EnglishHeroApp {
         document.getElementById('speed-best').textContent = this.state.gameScores.speed || '--';
     }
 
-    // 记忆游戏
+    // 在单词页面启动记忆游戏
+    startMemoryGameInWordPage() {
+        const wordGameArea = document.getElementById('word-game-area');
+        if (!wordGameArea) return;
+        
+        wordGameArea.style.display = 'block';
+        wordGameArea.scrollIntoView({ behavior: 'smooth' });
+        
+        // 选择当前单元的单词
+        const unit = this.data.vocabulary[this.currentUnit];
+        const selectedWords = unit.words.slice(0, 6);
+        
+        // 创建卡片对（单词-意思）
+        let cards = [];
+        selectedWords.forEach((word, i) => {
+            cards.push({ id: i * 2, type: 'word', content: word.word, pair: i });
+            cards.push({ id: i * 2 + 1, type: 'meaning', content: word.meaning, pair: i });
+        });
+        
+        cards = this.shuffleArray(cards);
+        
+        this.gameState = {
+            type: 'memory',
+            cards: cards,
+            selected: [],
+            matched: [],
+            moves: 0,
+            startTime: Date.now()
+        };
+        
+        this.renderMemoryGameInWordPage();
+    }
+    
+    renderMemoryGameInWordPage() {
+        const wordGameArea = document.getElementById('word-game-area');
+        
+        wordGameArea.innerHTML = `
+            <div style="text-align: center; margin-bottom: 16px;">
+                <div class="game-score">🧠 单词配对</div>
+                <div>步数: <span id="memory-moves-word">0</span></div>
+                <div style="font-size: 12px; color: var(--text-secondary); margin-top: 4px;">点击英文单词和对应的中文意思进行配对</div>
+            </div>
+            <div class="memory-grid" id="memory-grid-word"></div>
+        `;
+        
+        const grid = document.getElementById('memory-grid-word');
+        grid.innerHTML = this.gameState.cards.map((card, index) => {
+            const isMatched = this.gameState.matched.includes(card.pair);
+            const isSelected = this.gameState.selected.includes(index);
+            
+            return `
+            <button class="memory-card ${isMatched ? 'matched' : ''} ${isSelected ? 'selected' : ''}" 
+                    onclick="app.selectMemoryCardInWordPage(${index})"
+                    ${isMatched ? 'disabled' : ''}>
+                <span style="font-size: ${card.type === 'word' ? '16px' : '14px'}; font-weight: ${card.type === 'word' ? '700' : '600'};">${card.content}</span>
+            </button>
+        `}).join('');
+    }
+    
+    selectMemoryCardInWordPage(index) {
+        // 如果已经选了2个，或者点击已选中的，返回
+        if (this.gameState.selected.length >= 2) return;
+        if (this.gameState.selected.includes(index)) return;
+        
+        this.gameState.selected.push(index);
+        this.renderMemoryGameInWordPage();
+        
+        if (this.gameState.selected.length === 2) {
+            this.gameState.moves++;
+            document.getElementById('memory-moves-word').textContent = this.gameState.moves;
+            
+            const card1 = this.gameState.cards[this.gameState.selected[0]];
+            const card2 = this.gameState.cards[this.gameState.selected[1]];
+            
+            if (card1.pair === card2.pair) {
+                // 配对成功
+                this.gameState.matched.push(card1.pair);
+                this.playSound('match');
+                this.gameState.selected = [];
+                this.renderMemoryGameInWordPage();
+                
+                // 检查是否全部配对
+                if (this.gameState.matched.length === this.gameState.cards.length / 2) {
+                    const time = Math.floor((Date.now() - this.gameState.startTime) / 1000);
+                    const wordGameArea = document.getElementById('word-game-area');
+                    wordGameArea.innerHTML += `
+                        <div style="text-align: center; margin-top: 20px; padding: 20px; background: #E8F5E9; border-radius: 12px;">
+                            <div style="font-size: 48px; margin-bottom: 10px;">🎉</div>
+                            <h3>恭喜完成！</h3>
+                            <p>用时: ${time}秒 | 步数: ${this.gameState.moves}</p>
+                            <button class="btn-primary" onclick="app.startMemoryGameInWordPage()" style="margin-top: 10px;">再玩一次</button>
+                            <button class="btn-secondary" onclick="document.getElementById('word-game-area').style.display='none'" style="margin-top: 10px; margin-left: 10px;">关闭</button>
+                        </div>
+                    `;
+                    
+                    // 更新最佳成绩
+                    if (!this.state.gameScores.memory || this.gameState.moves < this.state.gameScores.memory) {
+                        this.state.gameScores.memory = this.gameState.moves;
+                        this.saveState();
+                    }
+                }
+            } else {
+                // 配对失败，1秒后重置
+                setTimeout(() => {
+                    this.gameState.selected = [];
+                    this.renderMemoryGameInWordPage();
+                }, 1000);
+            }
+        }
+    }
+
+    // 在单词页面启动拼写游戏
+    startSpellingGameInWordPage() {
+        const wordGameArea = document.getElementById('word-game-area');
+        if (!wordGameArea) return;
+        
+        wordGameArea.style.display = 'block';
+        wordGameArea.scrollIntoView({ behavior: 'smooth' });
+        
+        // 使用当前单元的单词
+        const unit = this.data.vocabulary[this.currentUnit];
+        const words = this.shuffleArray([...unit.words]).slice(0, 5);
+        
+        this.gameState = {
+            type: 'spelling',
+            words: words,
+            currentIndex: 0,
+            correct: 0,
+            answers: []
+        };
+        
+        this.renderSpellingGameInWordPage();
+    }
+    
+    renderSpellingGameInWordPage() {
+        const wordGameArea = document.getElementById('word-game-area');
+        const current = this.gameState.words[this.gameState.currentIndex];
+        
+        wordGameArea.innerHTML = `
+            <div style="text-align: center; margin-bottom: 16px;">
+                <div class="game-score">✍️ 拼写挑战</div>
+                <div>第 ${this.gameState.currentIndex + 1} / ${this.gameState.words.length} 题</div>
+            </div>
+            <div style="text-align: center; padding: 20px;">
+                <div style="font-size: 48px; margin-bottom: 10px;">${current.image}</div>
+                <div style="font-size: 18px; color: var(--text-secondary); margin-bottom: 10px;">${current.meaning}</div>
+                <div style="font-size: 14px; color: var(--text-secondary); margin-bottom: 20px;">音标: ${current.phonetic}</div>
+                <input type="text" id="spelling-input-word" 
+                       style="padding: 12px; font-size: 18px; border: 2px solid var(--primary); border-radius: 8px; text-align: center; width: 200px;"
+                       placeholder="输入英文单词" autocomplete="off">
+                <div style="margin-top: 16px;">
+                    <button class="btn-primary" onclick="app.checkSpellingInWordPage()">提交</button>
+                    <button class="btn-secondary" onclick="app.playWordSound()">🔊 听发音</button>
+                </div>
+                <div id="spelling-feedback-word" style="margin-top: 16px;"></div>
+            </div>
+        `;
+        
+        // 自动聚焦输入框
+        setTimeout(() => {
+            const input = document.getElementById('spelling-input-word');
+            if (input) input.focus();
+        }, 100);
+    }
+    
+    checkSpellingInWordPage() {
+        const input = document.getElementById('spelling-input-word');
+        const feedback = document.getElementById('spelling-feedback-word');
+        const current = this.gameState.words[this.gameState.currentIndex];
+        const answer = input.value.trim().toLowerCase();
+        
+        if (!answer) {
+            feedback.innerHTML = `<div style="color: #FF9800;">请输入单词</div>`;
+            return;
+        }
+        
+        const correct = answer === current.word.toLowerCase();
+        this.gameState.answers.push({ word: current.word, correct });
+        
+        if (correct) {
+            this.playSound('correct');
+            this.gameState.correct++;
+            feedback.innerHTML = `<div style="color: #4CAF50; font-weight: bold;">✅ 正确！</div>`;
+        } else {
+            this.playSound('wrong');
+            feedback.innerHTML = `<div style="color: #f44336; font-weight: bold;">❌ 错误！正确答案是: ${current.word}</div>`;
+        }
+        
+        // 2秒后下一题
+        setTimeout(() => {
+            this.gameState.currentIndex++;
+            if (this.gameState.currentIndex < this.gameState.words.length) {
+                this.renderSpellingGameInWordPage();
+            } else {
+                this.showSpellingResultInWordPage();
+            }
+        }, 2000);
+    }
+    
+    showSpellingResultInWordPage() {
+        const wordGameArea = document.getElementById('word-game-area');
+        const accuracy = Math.round((this.gameState.correct / this.gameState.words.length) * 100);
+        
+        wordGameArea.innerHTML = `
+            <div style="text-align: center; padding: 20px;">
+                <div style="font-size: 48px; margin-bottom: 10px;">${accuracy >= 80 ? '🎉' : accuracy >= 60 ? '👍' : '💪'}</div>
+                <h3>拼写挑战完成！</h3>
+                <p>正确: ${this.gameState.correct} / ${this.gameState.words.length} (${accuracy}%)</p>
+                <button class="btn-primary" onclick="app.startSpellingGameInWordPage()" style="margin-top: 10px;">再玩一次</button>
+                <button class="btn-secondary" onclick="document.getElementById('word-game-area').style.display='none'" style="margin-top: 10px; margin-left: 10px;">关闭</button>
+            </div>
+        `;
+        
+        // 更新最佳成绩
+        if (!this.state.gameScores.spelling || this.gameState.correct > this.state.gameScores.spelling) {
+            this.state.gameScores.spelling = this.gameState.correct;
+            this.saveState();
+        }
+    }
+
+    // 记忆游戏 - 游戏中心版本
     startMemoryGame() {
         const gameArea = document.getElementById('game-area');
         if (!gameArea) return;
@@ -816,8 +1479,8 @@ class EnglishHeroApp {
         // 创建卡片对（单词-意思）
         let cards = [];
         selectedWords.forEach((word, i) => {
-            cards.push({ id: i, type: 'word', content: word.word, pair: i });
-            cards.push({ id: i + 8, type: 'meaning', content: word.meaning, pair: i });
+            cards.push({ id: i * 2, type: 'word', content: word.word, pair: i });
+            cards.push({ id: i * 2 + 1, type: 'meaning', content: word.meaning, pair: i });
         });
         
         cards = this.shuffleArray(cards);
@@ -825,7 +1488,7 @@ class EnglishHeroApp {
         this.gameState = {
             type: 'memory',
             cards: cards,
-            flipped: [],
+            selected: [],
             matched: [],
             moves: 0,
             startTime: Date.now()
@@ -839,56 +1502,64 @@ class EnglishHeroApp {
         
         gameArea.innerHTML = `
             <div style="text-align: center; margin-bottom: 16px;">
-                <div class="game-score">记忆翻牌</div>
+                <div class="game-score">🧠 单词配对</div>
                 <div>步数: <span id="memory-moves">0</span></div>
+                <div style="font-size: 12px; color: var(--text-secondary); margin-top: 4px;">点击英文单词和对应的中文意思进行配对</div>
             </div>
             <div class="memory-grid" id="memory-grid"></div>
         `;
         
         const grid = document.getElementById('memory-grid');
-        grid.innerHTML = this.gameState.cards.map((card, index) => `
-            <button class="memory-card ${this.gameState.matched.includes(card.pair) ? 'matched' : ''} ${this.gameState.flipped.includes(index) ? 'flipped' : ''}" 
-                    onclick="app.flipMemoryCard(${index})"
-                    ${this.gameState.matched.includes(card.pair) ? 'disabled' : ''}>
-                ${this.gameState.flipped.includes(index) || this.gameState.matched.includes(card.pair) ? 
-                    `<span style="font-size: 14px;">${card.content}</span>` : '❓'}
+        grid.innerHTML = this.gameState.cards.map((card, index) => {
+            const isMatched = this.gameState.matched.includes(card.pair);
+            const isSelected = this.gameState.selected.includes(index);
+            
+            return `
+            <button class="memory-card ${isMatched ? 'matched' : ''} ${isSelected ? 'selected' : ''}" 
+                    onclick="app.selectMemoryCard(${index})"
+                    ${isMatched ? 'disabled' : ''}>
+                <span style="font-size: ${card.type === 'word' ? '16px' : '14px'}; font-weight: ${card.type === 'word' ? '700' : '600'};">${card.content}</span>
             </button>
-        `).join('');
+        `}).join('');
     }
 
-    flipMemoryCard(index) {
-        if (this.gameState.flipped.length >= 2) return;
-        if (this.gameState.flipped.includes(index)) return;
+    selectMemoryCard(index) {
+        // 如果已经选了2个，或者点击已选中的，返回
+        if (this.gameState.selected.length >= 2) return;
+        if (this.gameState.selected.includes(index)) return;
         
-        this.gameState.flipped.push(index);
+        this.gameState.selected.push(index);
         this.renderMemoryGame();
         
-        if (this.gameState.flipped.length === 2) {
+        if (this.gameState.selected.length === 2) {
             this.gameState.moves++;
             document.getElementById('memory-moves').textContent = this.gameState.moves;
             
-            const card1 = this.gameState.cards[this.gameState.flipped[0]];
-            const card2 = this.gameState.cards[this.gameState.flipped[1]];
+            const card1 = this.gameState.cards[this.gameState.selected[0]];
+            const card2 = this.gameState.cards[this.gameState.selected[1]];
             
             if (card1.pair === card2.pair) {
                 // 匹配成功
+                this.playSound('match');
                 this.gameState.matched.push(card1.pair);
-                this.gameState.flipped = [];
+                this.gameState.selected = [];
                 
                 setTimeout(() => {
                     this.renderMemoryGame();
                     
                     // 检查是否全部匹配
                     if (this.gameState.matched.length === 8) {
+                        this.playSound('complete');
                         this.endMemoryGame();
                     }
                 }, 500);
             } else {
-                // 匹配失败
+                // 匹配失败 - 显示错误动画后重置
+                this.playSound('wrong');
                 setTimeout(() => {
-                    this.gameState.flipped = [];
+                    this.gameState.selected = [];
                     this.renderMemoryGame();
-                }, 1000);
+                }, 800);
             }
         }
     }
@@ -905,6 +1576,8 @@ class EnglishHeroApp {
         this.updateTaskProgress('word');
         this.checkAchievement('memory_king');
         this.saveState();
+        
+        this.playSound('complete');
         
         const gameArea = document.getElementById('game-area');
         gameArea.innerHTML = `
@@ -983,6 +1656,7 @@ class EnglishHeroApp {
         const correctWord = this.gameState.words[this.gameState.currentIndex].word.toLowerCase();
         
         if (userAnswer === correctWord) {
+            this.playSound('correct');
             input.classList.add('correct');
             this.gameState.correct++;
             this.gameState.streak++;
@@ -992,6 +1666,7 @@ class EnglishHeroApp {
                 this.checkAchievement('spelling_bee');
             }
         } else {
+            this.playSound('wrong');
             input.classList.add('wrong');
             this.gameState.streak = 0;
             
@@ -1027,6 +1702,8 @@ class EnglishHeroApp {
         this.addXP(score);
         this.updateTaskProgress('spelling');
         this.saveState();
+        
+        this.playSound('complete');
         
         const gameArea = document.getElementById('game-area');
         gameArea.innerHTML = `
@@ -1069,7 +1746,13 @@ class EnglishHeroApp {
 
     renderSpeedGame() {
         const gameArea = document.getElementById('game-area');
+        if (!gameArea) return;
+        
         const word = this.gameState.words[this.gameState.currentIndex];
+        if (!word) {
+            this.endSpeedGame();
+            return;
+        }
         
         // 生成选项（1个正确，3个错误）
         const options = [word.meaning];
@@ -1081,14 +1764,17 @@ class EnglishHeroApp {
         gameArea.innerHTML = `
             <div style="text-align: center;">
                 <div class="game-timer" id="speed-timer">${this.gameState.timeLeft}</div>
-                <div class="game-score">${word.word}</div>
-                <div style="margin-bottom: 16px;">选择正确的中文意思：</div>
-                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+                <div class="game-score" style="font-size: 32px; margin: 20px 0;">${word.word}</div>
+                <div style="margin-bottom: 16px; color: var(--text-secondary);">选择正确的中文意思：</div>
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; max-width: 400px; margin: 0 auto;">
                     ${shuffledOptions.map(option => `
-                        <button class="game-btn" onclick="app.answerSpeedGame('${option.replace(/'/g, "\\'")}')" style="margin: 0;">
+                        <button class="game-btn" onclick="app.answerSpeedGame(this.dataset.answer)" data-answer="${option.replace(/"/g, '&quot;')}" style="margin: 0; padding: 15px; font-size: 16px;">
                             ${option}
                         </button>
                     `).join('')}
+                </div>
+                <div style="margin-top: 20px;">
+                    <span>进度: ${this.gameState.currentIndex + 1} / ${this.gameState.words.length}</span>
                 </div>
             </div>
         `;
@@ -1098,8 +1784,11 @@ class EnglishHeroApp {
         const word = this.gameState.words[this.gameState.currentIndex];
         
         if (answer === word.meaning) {
+            this.playSound('correct');
             this.gameState.correct++;
             this.addXP(5);
+        } else {
+            this.playSound('wrong');
         }
         
         this.gameState.currentIndex++;
@@ -1121,6 +1810,8 @@ class EnglishHeroApp {
         
         this.addXP(score);
         this.saveState();
+        
+        this.playSound('complete');
         
         const gameArea = document.getElementById('game-area');
         gameArea.innerHTML = `

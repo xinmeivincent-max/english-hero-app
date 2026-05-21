@@ -123,6 +123,13 @@
                     <h2>📚 单词学习</h2>
                 </div>
                 <div class="unit-selector" id="unit-selector"></div>
+                <!-- 单元选择下拉菜单 -->
+                <div style="margin: 10px 0; text-align: center;">
+                    <select id="unit-select-dropdown" onchange="app.jumpToUnit(this.value)" 
+                            style="padding: 10px 15px; font-size: 16px; border: 2px solid var(--primary); border-radius: 8px; background: white; cursor: pointer;">
+                        <option value="">📍 选择单元跳转...</option>
+                    </select>
+                </div>
                 <div class="word-learning-area" id="word-learning-area">
                     <div class="flashcard-container" id="flashcard-container">
                         <div class="flashcard" id="flashcard">
@@ -151,9 +158,11 @@
                 </div>
                 <div class="word-games">
                     <h3>🎮 单词游戏</h3>
-                    <button class="game-btn" onclick="app.startSpellingGame()">✍️ 拼写挑战</button>
-                    <button class="game-btn" onclick="app.startMemoryGame()">🧠 记忆翻牌</button>
+                    <button class="game-btn" onclick="app.startSpellingGameInWordPage()">✍️ 拼写挑战</button>
+                    <button class="game-btn" onclick="app.startMemoryGameInWordPage()">🧠 记忆翻牌</button>
                 </div>
+                <!-- 单词页面游戏区域 -->
+                <div class="word-game-area" id="word-game-area" style="display: none; margin-top: 20px;"></div>
             </section>
 
             <!-- 句型分析页面 -->
@@ -161,6 +170,13 @@
                 <div class="page-header">
                     <button class="back-btn" onclick="app.navigate('home')">← 返回</button>
                     <h2>🔍 句型分析</h2>
+                </div>
+                <!-- 单元选择下拉菜单 -->
+                <div style="margin: 10px 0; text-align: center;">
+                    <select id="sentence-unit-select" onchange="app.jumpToSentenceUnit(this.value)" 
+                            style="padding: 10px 15px; font-size: 16px; border: 2px solid var(--primary); border-radius: 8px; background: white; cursor: pointer;">
+                        <option value="">📍 选择单元跳转...</option>
+                    </select>
                 </div>
                 <div class="pattern-list" id="pattern-list"></div>
                 <div class="sentence-practice" id="sentence-practice">
@@ -179,13 +195,20 @@
                     <button class="back-btn" onclick="app.navigate('home')">← 返回</button>
                     <h2>📖 阅读闯关</h2>
                 </div>
+                <!-- 单元选择下拉菜单 -->
+                <div style="margin: 10px 0; text-align: center;">
+                    <select id="reading-unit-select" onchange="app.jumpToReadingUnit(parseInt(this.value))" 
+                            style="padding: 10px 15px; font-size: 16px; border: 2px solid var(--primary); border-radius: 8px; background: white; cursor: pointer;">
+                        <option value="">📍 选择单元跳转...</option>
+                    </select>
+                </div>
                 <div class="reading-levels" id="reading-levels"></div>
                 <div class="reading-content" id="reading-content">
                     <div class="passage-area" id="passage-area">
                         <h3 id="passage-title">选择一篇文章开始阅读</h3>
                         <div class="passage-text" id="passage-text"></div>
+                        <div id="recording-ui"></div>
                         <div class="passage-questions" id="passage-questions"></div>
-                        <div class="reading-timer" id="reading-timer"></div>
                     </div>
                 </div>
             </section>
@@ -282,6 +305,10 @@
                 <span class="nav-icon">📚</span>
                 <span class="nav-label">单词</span>
             </button>
+            <button class="nav-item" onclick="app.navigate('sentences')">
+                <span class="nav-icon">🔍</span>
+                <span class="nav-label">句型</span>
+            </button>
             <button class="nav-item" onclick="app.navigate('reading')">
                 <span class="nav-icon">📖</span>
                 <span class="nav-label">阅读</span>
@@ -318,9 +345,62 @@
         </div>
     </div>
 
+    <!-- 错误提示 -->
+    <div id="error-screen" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #ff6b6b; color: white; z-index: 9999; padding: 20px; box-sizing: border-box; overflow-y: auto;">
+        <h2>😢 出错了</h2>
+        <p id="error-message" style="font-size: 18px; margin: 20px 0; word-break: break-all;"></p>
+        <div id="error-details" style="background: rgba(0,0,0,0.3); padding: 15px; border-radius: 8px; margin: 20px 0; font-family: monospace; font-size: 14px; white-space: pre-wrap; word-break: break-all;"></div>
+        
+        <button onclick="location.reload()" style="padding: 15px 30px; font-size: 18px; margin-top: 20px; cursor: pointer; border: none; border-radius: 8px; background: white; color: #ff6b6b; font-weight: bold;">刷新页面</button>
+        
+        <button onclick="localStorage.clear(); location.reload();" style="padding: 15px 30px; font-size: 18px; margin-top: 20px; margin-left: 10px; cursor: pointer; border: none; border-radius: 8px; background: #333; color: white; font-weight: bold;">清除数据并刷新</button>
+    </div>
+
+    <script>
+        // 全局错误捕获
+        window.onerror = function(msg, url, line, col, error) {
+            console.error('错误:', msg, '行:', line, '列:', col);
+            var details = '错误: ' + msg + '\n';
+            details += '文件: ' + (url || '未知') + '\n';
+            details += '行号: ' + line + '\n';
+            details += '列号: ' + col + '\n';
+            if (error && error.stack) {
+                details += '堆栈: ' + error.stack;
+            }
+            
+            document.getElementById('error-message').textContent = msg;
+            document.getElementById('error-details').textContent = details;
+            document.getElementById('error-screen').style.display = 'block';
+            document.getElementById('loading-screen').style.display = 'none';
+            return false;
+        };
+        
+        window.addEventListener('unhandledrejection', function(event) {
+            console.error('未处理的Promise错误:', event.reason);
+            var reason = event.reason;
+            if (typeof reason === 'object') {
+                reason = JSON.stringify(reason);
+            }
+            document.getElementById('error-message').textContent = 'Promise错误';
+            document.getElementById('error-details').textContent = String(reason);
+            document.getElementById('error-screen').style.display = 'block';
+            document.getElementById('loading-screen').style.display = 'none';
+        });
+    </script>
+
     <!-- 引入数据 -->
     <script src="data/courseData.js"></script>
     <!-- 引入主应用逻辑 -->
     <script src="js/app.js"></script>
+    
+    <script>
+        // 检查COURSE_DATA是否存在（在数据加载后检查）
+        if (typeof COURSE_DATA === 'undefined') {
+            document.getElementById('error-message').textContent = 'COURSE_DATA 未定义';
+            document.getElementById('error-details').textContent = '课程数据加载失败，请检查网络连接';
+            document.getElementById('error-screen').style.display = 'block';
+            document.getElementById('loading-screen').style.display = 'none';
+        }
+    </script>
 </body>
 </html>
