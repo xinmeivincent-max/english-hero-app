@@ -1711,6 +1711,7 @@ input[type="text"]:focus, textarea:focus {
 // 英语小英雄 - 完整课程数据
 // 基于 Reading Explorer 3 学生用书 Unit 1A-6B
 // 共12个单元，每个单元独立（单词+句型+阅读）
+// 每个单元包含多种句型分析，句型从该单元课文中提取
 // ============================================
 
 const COURSE_DATA = {
@@ -1887,16 +1888,19 @@ const COURSE_DATA = {
     }
   ],
 
-  // 句型分析数据 - 按单元分组，每个单元独立
+  // 句型分析数据 - 按单元分组
+  // 每个单元包含多种句型，句型从该单元课文中提取
   sentencePatterns: [
-    // Unit 1A - 从课文中提取的关键句型
+    // ==================== Unit 1A ====================
+    // 从Unit 1A课文 "Soccer Without Borders" 提取的句子
     {
-      id: 1,
+      id: 101,
       unitId: 1,
       unitName: 'Unit 1A',
       title: '主谓宾结构',
       description: 'Subject + Verb + Object (SVO)',
       example: 'Teams compete for the championship.',
+      source: 'Unit 1A - Soccer Without Borders',
       analysis: [
         { part: 'Teams', type: '主语', color: '#FF6B6B' },
         { part: 'compete', type: '谓语', color: '#4ECDC4' },
@@ -1932,14 +1936,125 @@ const COURSE_DATA = {
         }
       ]
     },
-    // Unit 1B - 从课文中提取的关键句型
     {
-      id: 2,
+      id: 102,
+      unitId: 1,
+      unitName: 'Unit 1A',
+      title: '定语从句',
+      description: 'Relative Clause',
+      example: 'Players who come from Africa are very talented.',
+      source: 'Unit 1A - Soccer Without Borders',
+      analysis: [
+        { part: 'Players', type: '主语', color: '#FF6B6B' },
+        { part: 'who come from Africa', type: '定语从句', color: '#DDA0DD' },
+        { part: 'are', type: '系动词', color: '#4ECDC4' },
+        { part: 'very talented', type: '表语', color: '#45B7D1' }
+      ],
+      questions: [
+        {
+          sentence: 'Teams that win the tournament become famous.',
+          parts: [
+            { text: 'Teams', correct: '主语' },
+            { text: 'that win the tournament', correct: '定语从句' },
+            { text: 'become', correct: '系动词' },
+            { text: 'famous', correct: '表语' }
+          ],
+          options: ['主语', '定语从句', '系动词', '表语', '宾语']
+        },
+        {
+          sentence: 'Players who were born in other countries bring diversity.',
+          parts: [
+            { text: 'Players', correct: '主语' },
+            { text: 'who were born in other countries', correct: '定语从句' },
+            { text: 'bring', correct: '谓语' },
+            { text: 'diversity', correct: '宾语' }
+          ],
+          options: ['主语', '定语从句', '谓语', '宾语', '状语']
+        }
+      ]
+    },
+    {
+      id: 103,
+      unitId: 1,
+      unitName: 'Unit 1A',
+      title: '状语从句',
+      description: 'Adverbial Clause',
+      example: 'Although each team represents a country, it doesn\'t mean all players were born there.',
+      source: 'Unit 1A - Soccer Without Borders',
+      analysis: [
+        { part: 'Although each team represents a country', type: '让步状语从句', color: '#FFEAA7' },
+        { part: 'it', type: '主语', color: '#FF6B6B' },
+        { part: 'doesn\'t mean', type: '谓语', color: '#4ECDC4' },
+        { part: 'all players were born there', type: '宾语从句', color: '#45B7D1' }
+      ],
+      questions: [
+        {
+          sentence: 'Although each team represents a country, not all players were born there.',
+          parts: [
+            { text: 'Although each team represents a country', correct: '让步状语从句' },
+            { text: 'not all players', correct: '主语' },
+            { text: 'were born', correct: '谓语' },
+            { text: 'there', correct: '状语' }
+          ],
+          options: ['让步状语从句', '主语', '谓语', '状语', '宾语']
+        },
+        {
+          sentence: 'When the World Cup starts, fans cheer for their teams.',
+          parts: [
+            { text: 'When the World Cup starts', correct: '时间状语从句' },
+            { text: 'fans', correct: '主语' },
+            { text: 'cheer', correct: '谓语' },
+            { text: 'for their teams', correct: '状语' }
+          ],
+          options: ['时间状语从句', '主语', '谓语', '状语', '宾语']
+        }
+      ]
+    },
+    {
+      id: 104,
+      unitId: 1,
+      unitName: 'Unit 1A',
+      title: '宾语从句',
+      description: 'Object Clause',
+      example: 'They show that soccer is a sport without borders.',
+      source: 'Unit 1A - Soccer Without Borders',
+      analysis: [
+        { part: 'They', type: '主语', color: '#FF6B6B' },
+        { part: 'show', type: '谓语', color: '#4ECDC4' },
+        { part: 'that soccer is a sport without borders', type: '宾语从句', color: '#45B7D1' }
+      ],
+      questions: [
+        {
+          sentence: 'Experts believe that talent matters more than nationality.',
+          parts: [
+            { text: 'Experts', correct: '主语' },
+            { text: 'believe', correct: '谓语' },
+            { text: 'that talent matters more than nationality', correct: '宾语从句' }
+          ],
+          options: ['主语', '谓语', '宾语从句', '定语']
+        },
+        {
+          sentence: 'We know that soccer connects people worldwide.',
+          parts: [
+            { text: 'We', correct: '主语' },
+            { text: 'know', correct: '谓语' },
+            { text: 'that soccer connects people worldwide', correct: '宾语从句' }
+          ],
+          options: ['主语', '谓语', '宾语从句', '状语']
+        }
+      ]
+    },
+
+    // ==================== Unit 1B ====================
+    // 从Unit 1B课文 "A Love for Soccer" 提取的句子
+    {
+      id: 201,
       unitId: 2,
       unitName: 'Unit 1B',
       title: '被动语态',
       description: 'Subject + be + Past Participle',
       example: 'The game was brought to Africa by colonists.',
+      source: 'Unit 1B - A Love for Soccer',
       analysis: [
         { part: 'The game', type: '主语', color: '#FF6B6B' },
         { part: 'was brought', type: '谓语(被动)', color: '#4ECDC4' },
@@ -1957,16 +2072,6 @@ const COURSE_DATA = {
           options: ['主语', '谓语(被动)', '状语', '宾语']
         },
         {
-          sentence: 'The game was brought to Africa by colonists.',
-          parts: [
-            { text: 'The game', correct: '主语' },
-            { text: 'was brought', correct: '谓语(被动)' },
-            { text: 'to Africa', correct: '状语' },
-            { text: 'by colonists', correct: '施动者' }
-          ],
-          options: ['主语', '谓语(被动)', '状语', '施动者', '宾语']
-        },
-        {
           sentence: 'Boys are recruited from poorer cities.',
           parts: [
             { text: 'Boys', correct: '主语' },
@@ -1974,70 +2079,117 @@ const COURSE_DATA = {
             { text: 'from poorer cities', correct: '状语' }
           ],
           options: ['主语', '谓语(被动)', '状语', '宾语']
+        },
+        {
+          sentence: 'The sport was first played in South Africa.',
+          parts: [
+            { text: 'The sport', correct: '主语' },
+            { text: 'was first played', correct: '谓语(被动)' },
+            { text: 'in South Africa', correct: '状语' }
+          ],
+          options: ['主语', '谓语(被动)', '状语', '宾语']
         }
       ]
     },
-    // Unit 2A - 占位
     {
-      id: 3,
+      id: 202,
+      unitId: 2,
+      unitName: 'Unit 1B',
+      title: '主谓宾结构',
+      description: 'Subject + Verb + Object',
+      example: 'European colonists brought the game to Africa.',
+      source: 'Unit 1B - A Love for Soccer',
+      analysis: [
+        { part: 'European colonists', type: '主语', color: '#FF6B6B' },
+        { part: 'brought', type: '谓语', color: '#4ECDC4' },
+        { part: 'the game', type: '宾语', color: '#45B7D1' },
+        { part: 'to Africa', type: '状语', color: '#96CEB4' }
+      ],
+      questions: [
+        {
+          sentence: 'Academies recruit boys from poor cities.',
+          parts: [
+            { text: 'Academies', correct: '主语' },
+            { text: 'recruit', correct: '谓语' },
+            { text: 'boys', correct: '宾语' },
+            { text: 'from poor cities', correct: '状语' }
+          ],
+          options: ['主语', '谓语', '宾语', '状语']
+        },
+        {
+          sentence: 'The national team promotes peace.',
+          parts: [
+            { text: 'The national team', correct: '主语' },
+            { text: 'promotes', correct: '谓语' },
+            { text: 'peace', correct: '宾语' }
+          ],
+          options: ['主语', '谓语', '宾语', '定语']
+        }
+      ]
+    },
+    {
+      id: 203,
+      unitId: 2,
+      unitName: 'Unit 1B',
+      title: '直接引语',
+      description: 'Direct Speech',
+      example: '"Soccer is the passion of everyone here," says Abubakari Abdul-Ganiyu.',
+      source: 'Unit 1B - A Love for Soccer',
+      analysis: [
+        { part: '"Soccer is the passion of everyone here,"', type: '直接引语', color: '#DDA0DD' },
+        { part: 'says', type: '谓语', color: '#4ECDC4' },
+        { part: 'Abubakari Abdul-Ganiyu', type: '主语', color: '#FF6B6B' }
+      ],
+      questions: [
+        {
+          sentence: '"It unifies us," he added.',
+          parts: [
+            { text: '"It unifies us,"', correct: '直接引语' },
+            { text: 'he', correct: '主语' },
+            { text: 'added', correct: '谓语' }
+          ],
+          options: ['直接引语', '主语', '谓语', '宾语']
+        }
+      ]
+    },
+    {
+      id: 204,
+      unitId: 2,
+      unitName: 'Unit 1B',
+      title: '原因状语从句',
+      description: 'Adverbial Clause of Reason',
+      example: 'As a result, the national team has become a symbol of unity.',
+      source: 'Unit 1B - A Love for Soccer',
+      analysis: [
+        { part: 'As a result', type: '连接短语', color: '#FFEAA7' },
+        { part: 'the national team', type: '主语', color: '#FF6B6B' },
+        { part: 'has become', type: '谓语', color: '#4ECDC4' },
+        { part: 'a symbol of unity', type: '表语', color: '#45B7D1' }
+      ],
+      questions: [
+        {
+          sentence: 'Because soccer unifies people, it brings peace.',
+          parts: [
+            { text: 'Because soccer unifies people', correct: '原因状语从句' },
+            { text: 'it', correct: '主语' },
+            { text: 'brings', correct: '谓语' },
+            { text: 'peace', correct: '宾语' }
+          ],
+          options: ['原因状语从句', '主语', '谓语', '宾语', '表语']
+        }
+      ]
+    },
+
+    // ==================== Unit 2A-5B 占位 ====================
+    // Unit 2A
+    {
+      id: 301,
       unitId: 3,
       unitName: 'Unit 2A',
-      title: '定语从句',
-      description: 'Relative Clause',
-      example: 'Players who come from Africa are very talented.',
-      analysis: [
-        { part: 'Players', type: '主语', color: '#FF6B6B' },
-        { part: 'who come from Africa', type: '定语从句', color: '#DDA0DD' },
-        { part: 'are', type: '系动词', color: '#4ECDC4' },
-        { part: 'very talented', type: '表语', color: '#45B7D1' }
-      ],
-      questions: [
-        {
-          sentence: 'Teams that win the tournament become famous.',
-          parts: [
-            { text: 'Teams', correct: '主语' },
-            { text: 'that win the tournament', correct: '定语从句' },
-            { text: 'become', correct: '系动词' },
-            { text: 'famous', correct: '表语' }
-          ],
-          options: ['主语', '定语从句', '系动词', '表语', '宾语']
-        }
-      ]
-    },
-    // Unit 2B - 占位
-    {
-      id: 4,
-      unitId: 4,
-      unitName: 'Unit 2B',
-      title: '状语从句',
-      description: 'Adverbial Clause',
-      example: 'When the game started, everyone cheered.',
-      analysis: [
-        { part: 'When the game started', type: '时间状语从句', color: '#FFEAA7' },
-        { part: 'everyone', type: '主语', color: '#FF6B6B' },
-        { part: 'cheered', type: '谓语', color: '#4ECDC4' }
-      ],
-      questions: [
-        {
-          sentence: 'When the rain stopped, the players returned to the field.',
-          parts: [
-            { text: 'When the rain stopped', correct: '时间状语从句' },
-            { text: 'the players', correct: '主语' },
-            { text: 'returned', correct: '谓语' },
-            { text: 'to the field', correct: '宾语' }
-          ],
-          options: ['时间状语从句', '主语', '谓语', '宾语', '表语']
-        }
-      ]
-    },
-    // Unit 3A - 占位
-    {
-      id: 5,
-      unitId: 5,
-      unitName: 'Unit 3A',
       title: '主谓宾结构',
       description: 'Subject + Verb + Object',
       example: 'Scientists study the environment.',
+      source: 'Unit 2A',
       analysis: [
         { part: 'Scientists', type: '主语', color: '#FF6B6B' },
         { part: 'study', type: '谓语', color: '#4ECDC4' },
@@ -2056,92 +2208,95 @@ const COURSE_DATA = {
         }
       ]
     },
-    // Unit 3B - 占位
     {
-      id: 6,
-      unitId: 6,
-      unitName: 'Unit 3B',
-      title: '被动语态',
-      description: 'Subject + be + Past Participle',
-      example: 'The data was collected by researchers.',
-      analysis: [
-        { part: 'The data', type: '主语', color: '#FF6B6B' },
-        { part: 'was collected', type: '谓语(被动)', color: '#4ECDC4' },
-        { part: 'by researchers', type: '施动者', color: '#FFEAA7' }
-      ],
-      questions: [
-        {
-          sentence: 'The results were published in a journal.',
-          parts: [
-            { text: 'The results', correct: '主语' },
-            { text: 'were published', correct: '谓语(被动)' },
-            { text: 'in a journal', correct: '状语' }
-          ],
-          options: ['主语', '谓语(被动)', '状语', '宾语']
-        }
-      ]
-    },
-    // Unit 4A - 占位
-    {
-      id: 7,
-      unitId: 7,
-      unitName: 'Unit 4A',
+      id: 302,
+      unitId: 3,
+      unitName: 'Unit 2A',
       title: '定语从句',
       description: 'Relative Clause',
-      example: 'The book that I read was interesting.',
+      example: 'The scientist who discovered DNA became famous.',
+      source: 'Unit 2A',
       analysis: [
-        { part: 'The book', type: '主语', color: '#FF6B6B' },
-        { part: 'that I read', type: '定语从句', color: '#DDA0DD' },
-        { part: 'was', type: '系动词', color: '#4ECDC4' },
-        { part: 'interesting', type: '表语', color: '#45B7D1' }
+        { part: 'The scientist', type: '主语', color: '#FF6B6B' },
+        { part: 'who discovered DNA', type: '定语从句', color: '#DDA0DD' },
+        { part: 'became', type: '系动词', color: '#4ECDC4' },
+        { part: 'famous', type: '表语', color: '#45B7D1' }
       ],
       questions: [
         {
-          sentence: 'The scientist who discovered DNA became famous.',
+          sentence: 'The book that I read was interesting.',
           parts: [
-            { text: 'The scientist', correct: '主语' },
-            { text: 'who discovered DNA', correct: '定语从句' },
-            { text: 'became', correct: '系动词' },
-            { text: 'famous', correct: '表语' }
+            { text: 'The book', correct: '主语' },
+            { text: 'that I read', correct: '定语从句' },
+            { text: 'was', correct: '系动词' },
+            { text: 'interesting', correct: '表语' }
           ],
           options: ['主语', '定语从句', '系动词', '表语']
         }
       ]
     },
-    // Unit 4B - 占位
+
+    // Unit 2B
     {
-      id: 8,
-      unitId: 8,
-      unitName: 'Unit 4B',
+      id: 401,
+      unitId: 4,
+      unitName: 'Unit 2B',
       title: '状语从句',
       description: 'Adverbial Clause',
-      example: 'Because it rained, the game was cancelled.',
+      example: 'When the rain stopped, the players returned.',
+      source: 'Unit 2B',
       analysis: [
-        { part: 'Because it rained', type: '原因状语从句', color: '#FFEAA7' },
-        { part: 'the game', type: '主语', color: '#FF6B6B' },
-        { part: 'was cancelled', type: '谓语(被动)', color: '#4ECDC4' }
+        { part: 'When the rain stopped', type: '时间状语从句', color: '#FFEAA7' },
+        { part: 'the players', type: '主语', color: '#FF6B6B' },
+        { part: 'returned', type: '谓语', color: '#4ECDC4' }
       ],
       questions: [
         {
-          sentence: 'Although he was tired, he finished the race.',
+          sentence: 'When the game started, everyone cheered.',
           parts: [
-            { text: 'Although he was tired', correct: '让步状语从句' },
-            { text: 'he', correct: '主语' },
-            { text: 'finished', correct: '谓语' },
-            { text: 'the race', correct: '宾语' }
+            { text: 'When the game started', correct: '时间状语从句' },
+            { text: 'everyone', correct: '主语' },
+            { text: 'cheered', correct: '谓语' }
           ],
-          options: ['让步状语从句', '主语', '谓语', '宾语']
+          options: ['时间状语从句', '主语', '谓语', '宾语']
         }
       ]
     },
-    // Unit 5A - 占位
     {
-      id: 9,
-      unitId: 9,
-      unitName: 'Unit 5A',
+      id: 402,
+      unitId: 4,
+      unitName: 'Unit 2B',
+      title: '被动语态',
+      description: 'Passive Voice',
+      example: 'The results were published in a journal.',
+      source: 'Unit 2B',
+      analysis: [
+        { part: 'The results', type: '主语', color: '#FF6B6B' },
+        { part: 'were published', type: '谓语(被动)', color: '#4ECDC4' },
+        { part: 'in a journal', type: '状语', color: '#96CEB4' }
+      ],
+      questions: [
+        {
+          sentence: 'The data was collected by researchers.',
+          parts: [
+            { text: 'The data', correct: '主语' },
+            { text: 'was collected', correct: '谓语(被动)' },
+            { text: 'by researchers', correct: '施动者' }
+          ],
+          options: ['主语', '谓语(被动)', '施动者', '宾语']
+        }
+      ]
+    },
+
+    // Unit 3A
+    {
+      id: 501,
+      unitId: 5,
+      unitName: 'Unit 3A',
       title: '主谓宾结构',
       description: 'Subject + Verb + Object',
       example: 'Students learn new skills every day.',
+      source: 'Unit 3A',
       analysis: [
         { part: 'Students', type: '主语', color: '#FF6B6B' },
         { part: 'learn', type: '谓语', color: '#4ECDC4' },
@@ -2160,14 +2315,41 @@ const COURSE_DATA = {
         }
       ]
     },
-    // Unit 5B - 占位
     {
-      id: 10,
-      unitId: 10,
-      unitName: 'Unit 5B',
+      id: 502,
+      unitId: 5,
+      unitName: 'Unit 3A',
+      title: '宾语从句',
+      description: 'Object Clause',
+      example: 'We know that practice makes perfect.',
+      source: 'Unit 3A',
+      analysis: [
+        { part: 'We', type: '主语', color: '#FF6B6B' },
+        { part: 'know', type: '谓语', color: '#4ECDC4' },
+        { part: 'that practice makes perfect', type: '宾语从句', color: '#45B7D1' }
+      ],
+      questions: [
+        {
+          sentence: 'She believes that hard work pays off.',
+          parts: [
+            { text: 'She', correct: '主语' },
+            { text: 'believes', correct: '谓语' },
+            { text: 'that hard work pays off', correct: '宾语从句' }
+          ],
+          options: ['主语', '谓语', '宾语从句', '定语']
+        }
+      ]
+    },
+
+    // Unit 3B
+    {
+      id: 601,
+      unitId: 6,
+      unitName: 'Unit 3B',
       title: '被动语态',
-      description: 'Subject + be + Past Participle',
+      description: 'Passive Voice',
       example: 'Homework is assigned every day.',
+      source: 'Unit 3B',
       analysis: [
         { part: 'Homework', type: '主语', color: '#FF6B6B' },
         { part: 'is assigned', type: '谓语(被动)', color: '#4ECDC4' },
@@ -2185,14 +2367,258 @@ const COURSE_DATA = {
         }
       ]
     },
-    // Unit 6A - 从课文中提取的关键句型
     {
-      id: 11,
+      id: 602,
+      unitId: 6,
+      unitName: 'Unit 3B',
+      title: '定语从句',
+      description: 'Relative Clause',
+      example: 'The student who studies hard will succeed.',
+      source: 'Unit 3B',
+      analysis: [
+        { part: 'The student', type: '主语', color: '#FF6B6B' },
+        { part: 'who studies hard', type: '定语从句', color: '#DDA0DD' },
+        { part: 'will succeed', type: '谓语', color: '#4ECDC4' }
+      ],
+      questions: [
+        {
+          sentence: 'The school that she attends is famous.',
+          parts: [
+            { text: 'The school', correct: '主语' },
+            { text: 'that she attends', correct: '定语从句' },
+            { text: 'is', correct: '系动词' },
+            { text: 'famous', correct: '表语' }
+          ],
+          options: ['主语', '定语从句', '系动词', '表语']
+        }
+      ]
+    },
+
+    // Unit 4A
+    {
+      id: 701,
+      unitId: 7,
+      unitName: 'Unit 4A',
+      title: '主谓宾结构',
+      description: 'Subject + Verb + Object',
+      example: 'Technology changes our lives.',
+      source: 'Unit 4A',
+      analysis: [
+        { part: 'Technology', type: '主语', color: '#FF6B6B' },
+        { part: 'changes', type: '谓语', color: '#4ECDC4' },
+        { part: 'our lives', type: '宾语', color: '#45B7D1' }
+      ],
+      questions: [
+        {
+          sentence: 'Online resources help students learn.',
+          parts: [
+            { text: 'Online resources', correct: '主语' },
+            { text: 'help', correct: '谓语' },
+            { text: 'students', correct: '宾语' },
+            { text: 'learn', correct: '宾补' }
+          ],
+          options: ['主语', '谓语', '宾语', '宾补']
+        }
+      ]
+    },
+    {
+      id: 702,
+      unitId: 7,
+      unitName: 'Unit 4A',
+      title: '状语从句',
+      description: 'Adverbial Clause',
+      example: 'Although technology is helpful, we should use it wisely.',
+      source: 'Unit 4A',
+      analysis: [
+        { part: 'Although technology is helpful', type: '让步状语从句', color: '#FFEAA7' },
+        { part: 'we', type: '主语', color: '#FF6B6B' },
+        { part: 'should use', type: '谓语', color: '#4ECDC4' },
+        { part: 'it', type: '宾语', color: '#45B7D1' }
+      ],
+      questions: [
+        {
+          sentence: 'If we use technology wisely, it benefits us.',
+          parts: [
+            { text: 'If we use technology wisely', correct: '条件状语从句' },
+            { text: 'it', correct: '主语' },
+            { text: 'benefits', correct: '谓语' },
+            { text: 'us', correct: '宾语' }
+          ],
+          options: ['条件状语从句', '主语', '谓语', '宾语']
+        }
+      ]
+    },
+
+    // Unit 4B
+    {
+      id: 801,
+      unitId: 8,
+      unitName: 'Unit 4B',
+      title: '被动语态',
+      description: 'Passive Voice',
+      example: 'Forests are being destroyed by human activity.',
+      source: 'Unit 4B',
+      analysis: [
+        { part: 'Forests', type: '主语', color: '#FF6B6B' },
+        { part: 'are being destroyed', type: '谓语(被动)', color: '#4ECDC4' },
+        { part: 'by human activity', type: '施动者', color: '#FFEAA7' }
+      ],
+      questions: [
+        {
+          sentence: 'The environment is protected by laws.',
+          parts: [
+            { text: 'The environment', correct: '主语' },
+            { text: 'is protected', correct: '谓语(被动)' },
+            { text: 'by laws', correct: '施动者' }
+          ],
+          options: ['主语', '谓语(被动)', '施动者', '宾语']
+        }
+      ]
+    },
+    {
+      id: 802,
+      unitId: 8,
+      unitName: 'Unit 4B',
+      title: '原因状语从句',
+      description: 'Adverbial Clause of Reason',
+      example: 'Because pollution increases, climate changes.',
+      source: 'Unit 4B',
+      analysis: [
+        { part: 'Because pollution increases', type: '原因状语从句', color: '#FFEAA7' },
+        { part: 'climate', type: '主语', color: '#FF6B6B' },
+        { part: 'changes', type: '谓语', color: '#4ECDC4' }
+      ],
+      questions: [
+        {
+          sentence: 'Since forests absorb CO2, they help the planet.',
+          parts: [
+            { text: 'Since forests absorb CO2', correct: '原因状语从句' },
+            { text: 'they', correct: '主语' },
+            { text: 'help', correct: '谓语' },
+            { text: 'the planet', correct: '宾语' }
+          ],
+          options: ['原因状语从句', '主语', '谓语', '宾语']
+        }
+      ]
+    },
+
+    // Unit 5A
+    {
+      id: 901,
+      unitId: 9,
+      unitName: 'Unit 5A',
+      title: '主谓宾结构',
+      description: 'Subject + Verb + Object',
+      example: 'Critical thinking helps us analyze information.',
+      source: 'Unit 5A',
+      analysis: [
+        { part: 'Critical thinking', type: '主语', color: '#FF6B6B' },
+        { part: 'helps', type: '谓语', color: '#4ECDC4' },
+        { part: 'us', type: '宾语', color: '#45B7D1' },
+        { part: 'analyze information', type: '宾补', color: '#96CEB4' }
+      ],
+      questions: [
+        {
+          sentence: 'Good readers ask questions while reading.',
+          parts: [
+            { text: 'Good readers', correct: '主语' },
+            { text: 'ask', correct: '谓语' },
+            { text: 'questions', correct: '宾语' },
+            { text: 'while reading', correct: '状语' }
+          ],
+          options: ['主语', '谓语', '宾语', '状语']
+        }
+      ]
+    },
+    {
+      id: 902,
+      unitId: 9,
+      unitName: 'Unit 5A',
+      title: '宾语从句',
+      description: 'Object Clause',
+      example: 'We believe that evidence supports our opinion.',
+      source: 'Unit 5A',
+      analysis: [
+        { part: 'We', type: '主语', color: '#FF6B6B' },
+        { part: 'believe', type: '谓语', color: '#4ECDC4' },
+        { part: 'that evidence supports our opinion', type: '宾语从句', color: '#45B7D1' }
+      ],
+      questions: [
+        {
+          sentence: 'They think that practice improves skills.',
+          parts: [
+            { text: 'They', correct: '主语' },
+            { text: 'think', correct: '谓语' },
+            { text: 'that practice improves skills', correct: '宾语从句' }
+          ],
+          options: ['主语', '谓语', '宾语从句', '定语']
+        }
+      ]
+    },
+
+    // Unit 5B
+    {
+      id: 1001,
+      unitId: 10,
+      unitName: 'Unit 5B',
+      title: '被动语态',
+      description: 'Passive Voice',
+      example: 'Cultures are connected by globalization.',
+      source: 'Unit 5B',
+      analysis: [
+        { part: 'Cultures', type: '主语', color: '#FF6B6B' },
+        { part: 'are connected', type: '谓语(被动)', color: '#4ECDC4' },
+        { part: 'by globalization', type: '施动者', color: '#FFEAA7' }
+      ],
+      questions: [
+        {
+          sentence: 'Goods are traded between countries.',
+          parts: [
+            { text: 'Goods', correct: '主语' },
+            { text: 'are traded', correct: '谓语(被动)' },
+            { text: 'between countries', correct: '状语' }
+          ],
+          options: ['主语', '谓语(被动)', '状语', '宾语']
+        }
+      ]
+    },
+    {
+      id: 1002,
+      unitId: 10,
+      unitName: 'Unit 5B',
+      title: '让步状语从句',
+      description: 'Adverbial Clause of Concession',
+      example: 'Although globalization has benefits, it creates challenges.',
+      source: 'Unit 5B',
+      analysis: [
+        { part: 'Although globalization has benefits', type: '让步状语从句', color: '#FFEAA7' },
+        { part: 'it', type: '主语', color: '#FF6B6B' },
+        { part: 'creates', type: '谓语', color: '#4ECDC4' },
+        { part: 'challenges', type: '宾语', color: '#45B7D1' }
+      ],
+      questions: [
+        {
+          sentence: 'While trade increases, inequality may grow.',
+          parts: [
+            { text: 'While trade increases', correct: '让步状语从句' },
+            { text: 'inequality', correct: '主语' },
+            { text: 'may grow', correct: '谓语' }
+          ],
+          options: ['让步状语从句', '主语', '谓语', '宾语']
+        }
+      ]
+    },
+
+    // ==================== Unit 6A ====================
+    // 从Unit 6A课文 "The World's Favorite Drug" 提取的句子
+    {
+      id: 1101,
       unitId: 11,
       unitName: 'Unit 6A',
       title: '状语从句',
       description: 'Adverbial Clause',
       example: 'When caffeine is consumed in moderation, it is not dangerous.',
+      source: 'Unit 6A - The World\'s Favorite Drug',
       analysis: [
         { part: 'When caffeine is consumed in moderation', type: '时间状语从句', color: '#FFEAA7' },
         { part: 'it', type: '主语', color: '#FF6B6B' },
@@ -2232,14 +2658,120 @@ const COURSE_DATA = {
         }
       ]
     },
-    // Unit 6B - 从课文中提取的关键句型
     {
-      id: 12,
+      id: 1102,
+      unitId: 11,
+      unitName: 'Unit 6A',
+      title: '主谓宾结构',
+      description: 'Subject + Verb + Object',
+      example: 'Caffeine counteracts physical fatigue.',
+      source: 'Unit 6A - The World\'s Favorite Drug',
+      analysis: [
+        { part: 'Caffeine', type: '主语', color: '#FF6B6B' },
+        { part: 'counteracts', type: '谓语', color: '#4ECDC4' },
+        { part: 'physical fatigue', type: '宾语', color: '#45B7D1' }
+      ],
+      questions: [
+        {
+          sentence: 'Caffeine increases alertness.',
+          parts: [
+            { text: 'Caffeine', correct: '主语' },
+            { text: 'increases', correct: '谓语' },
+            { text: 'alertness', correct: '宾语' }
+          ],
+          options: ['主语', '谓语', '宾语', '定语']
+        },
+        {
+          sentence: 'Students drink coffee to stay awake.',
+          parts: [
+            { text: 'Students', correct: '主语' },
+            { text: 'drink', correct: '谓语' },
+            { text: 'coffee', correct: '宾语' },
+            { text: 'to stay awake', correct: '状语' }
+          ],
+          options: ['主语', '谓语', '宾语', '状语']
+        }
+      ]
+    },
+    {
+      id: 1103,
+      unitId: 11,
+      unitName: 'Unit 6A',
+      title: '被动语态',
+      description: 'Passive Voice',
+      example: 'Caffeine is found in coffee and tea.',
+      source: 'Unit 6A - The World\'s Favorite Drug',
+      analysis: [
+        { part: 'Caffeine', type: '主语', color: '#FF6B6B' },
+        { part: 'is found', type: '谓语(被动)', color: '#4ECDC4' },
+        { part: 'in coffee and tea', type: '状语', color: '#96CEB4' }
+      ],
+      questions: [
+        {
+          sentence: 'Caffeine is consumed by millions of people.',
+          parts: [
+            { text: 'Caffeine', correct: '主语' },
+            { text: 'is consumed', correct: '谓语(被动)' },
+            { text: 'by millions of people', correct: '施动者' }
+          ],
+          options: ['主语', '谓语(被动)', '施动者', '宾语']
+        },
+        {
+          sentence: 'Energy drinks are marketed to young people.',
+          parts: [
+            { text: 'Energy drinks', correct: '主语' },
+            { text: 'are marketed', correct: '谓语(被动)' },
+            { text: 'to young people', correct: '状语' }
+          ],
+          options: ['主语', '谓语(被动)', '状语', '宾语']
+        }
+      ]
+    },
+    {
+      id: 1104,
+      unitId: 11,
+      unitName: 'Unit 6A',
+      title: '宾语从句',
+      description: 'Object Clause',
+      example: 'Research suggests that caffeine may have health benefits.',
+      source: 'Unit 6A - The World\'s Favorite Drug',
+      analysis: [
+        { part: 'Research', type: '主语', color: '#FF6B6B' },
+        { part: 'suggests', type: '谓语', color: '#4ECDC4' },
+        { part: 'that caffeine may have health benefits', type: '宾语从句', color: '#45B7D1' }
+      ],
+      questions: [
+        {
+          sentence: 'Studies show that caffeine can ease muscle pain.',
+          parts: [
+            { text: 'Studies', correct: '主语' },
+            { text: 'show', correct: '谓语' },
+            { text: 'that caffeine can ease muscle pain', correct: '宾语从句' }
+          ],
+          options: ['主语', '谓语', '宾语从句', '定语']
+        },
+        {
+          sentence: 'Scientists believe that tea has disease-fighting chemicals.',
+          parts: [
+            { text: 'Scientists', correct: '主语' },
+            { text: 'believe', correct: '谓语' },
+            { text: 'that tea has disease-fighting chemicals', correct: '宾语从句' }
+          ],
+          options: ['主语', '谓语', '宾语从句', '状语']
+        }
+      ]
+    },
+
+    // ==================== Unit 6B ====================
+    // 从Unit 6B课文 "Healing Forests" 提取的句子
+    {
+      id: 1201,
       unitId: 12,
       unitName: 'Unit 6B',
       title: '主谓宾结构',
       description: 'Subject + Verb + Object',
       example: 'Nature improves concentration.',
+      source: 'Unit 6B - Healing Forests',
       analysis: [
         { part: 'Nature', type: '主语', color: '#FF6B6B' },
         { part: 'improves', type: '谓语', color: '#4ECDC4' },
@@ -2272,6 +2804,95 @@ const COURSE_DATA = {
             { text: 'the mind', correct: '宾语' }
           ],
           options: ['主语', '谓语', '宾语', '定语']
+        }
+      ]
+    },
+    {
+      id: 1202,
+      unitId: 12,
+      unitName: 'Unit 6B',
+      title: '定语从句',
+      description: 'Relative Clause',
+      example: 'The trees that release chemicals help our immune system.',
+      source: 'Unit 6B - Healing Forests',
+      analysis: [
+        { part: 'The trees', type: '主语', color: '#FF6B6B' },
+        { part: 'that release chemicals', type: '定语从句', color: '#DDA0DD' },
+        { part: 'help', type: '谓语', color: '#4ECDC4' },
+        { part: 'our immune system', type: '宾语', color: '#45B7D1' }
+      ],
+      questions: [
+        {
+          sentence: 'The forest that we visited was beautiful.',
+          parts: [
+            { text: 'The forest', correct: '主语' },
+            { text: 'that we visited', correct: '定语从句' },
+            { text: 'was', correct: '系动词' },
+            { text: 'beautiful', correct: '表语' }
+          ],
+          options: ['主语', '定语从句', '系动词', '表语']
+        },
+        {
+          sentence: 'Doctors who recommend forest therapy believe in nature.',
+          parts: [
+            { text: 'Doctors', correct: '主语' },
+            { text: 'who recommend forest therapy', correct: '定语从句' },
+            { text: 'believe', correct: '谓语' },
+            { text: 'in nature', correct: '状语' }
+          ],
+          options: ['主语', '定语从句', '谓语', '状语']
+        }
+      ]
+    },
+    {
+      id: 1203,
+      unitId: 12,
+      unitName: 'Unit 6B',
+      title: '原因状语从句',
+      description: 'Adverbial Clause of Reason',
+      example: 'Because nature reduces stress, people feel better.',
+      source: 'Unit 6B - Healing Forests',
+      analysis: [
+        { part: 'Because nature reduces stress', type: '原因状语从句', color: '#FFEAA7' },
+        { part: 'people', type: '主语', color: '#FF6B6B' },
+        { part: 'feel', type: '谓语', color: '#4ECDC4' },
+        { part: 'better', type: '表语', color: '#45B7D1' }
+      ],
+      questions: [
+        {
+          sentence: 'Since walking relaxes the body, doctors recommend it.',
+          parts: [
+            { text: 'Since walking relaxes the body', correct: '原因状语从句' },
+            { text: 'doctors', correct: '主语' },
+            { text: 'recommend', correct: '谓语' },
+            { text: 'it', correct: '宾语' }
+          ],
+          options: ['原因状语从句', '主语', '谓语', '宾语']
+        }
+      ]
+    },
+    {
+      id: 1204,
+      unitId: 12,
+      unitName: 'Unit 6B',
+      title: '被动语态',
+      description: 'Passive Voice',
+      example: 'Stress is reduced by spending time in nature.',
+      source: 'Unit 6B - Healing Forests',
+      analysis: [
+        { part: 'Stress', type: '主语', color: '#FF6B6B' },
+        { part: 'is reduced', type: '谓语(被动)', color: '#4ECDC4' },
+        { part: 'by spending time in nature', type: '施动者', color: '#FFEAA7' }
+      ],
+      questions: [
+        {
+          sentence: 'Blood pressure is lowered by forest bathing.',
+          parts: [
+            { text: 'Blood pressure', correct: '主语' },
+            { text: 'is lowered', correct: '谓语(被动)' },
+            { text: 'by forest bathing', correct: '施动者' }
+          ],
+          options: ['主语', '谓语(被动)', '施动者', '宾语']
         }
       ]
     }
