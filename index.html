@@ -4611,16 +4611,20 @@ class EnglishHeroApp {
 
     
     
-    updateReadingUnitDropdown() {
+        updateReadingUnitDropdown() {
         const dropdown = document.getElementById('reading-unit-select');
         if (!dropdown) return;
         
-        let options = '<option value="">📍 选择单元跳转...</option>';
-        this.data.units.forEach((unit, index) => {
-            options += `<option value="${index}">${unit.name}</option>`;
-        });
-        dropdown.innerHTML = options;
+        const unitId = this.getUnitId(this.currentUnit + 1);
+        const unitData = this.data.readingPassages.units.find(u => u.id === unitId);
+        
+        if (unitData && unitData.articles) {
+            dropdown.innerHTML = unitData.articles.map((article, index) => {
+                return `<option value="${index}" ${index === 0 ? 'selected' : ''}>${article.title}</option>`;
+            }).join('');
+        }
     }
+    
     
     jumpToReadingUnit(index) {
         if (index === '' || index === null || index === undefined) return;
