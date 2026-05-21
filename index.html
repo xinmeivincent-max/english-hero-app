@@ -359,8 +359,15 @@
             document.getElementById('error-screen').style.display = 'block';
             document.getElementById('loading-screen').style.display = 'none';
         });
-        
-        // 检查COURSE_DATA是否存在
+    </script>
+
+    <!-- 引入数据 -->
+    <script src="data/courseData.js"></script>
+    <!-- 引入主应用逻辑 -->
+    <script src="js/app.js"></script>
+    
+    <script>
+        // 检查COURSE_DATA是否存在（在数据加载后检查）
         if (typeof COURSE_DATA === 'undefined') {
             document.getElementById('error-message').textContent = 'COURSE_DATA 未定义';
             document.getElementById('error-details').textContent = '课程数据加载失败，请检查网络连接';
@@ -368,10 +375,5 @@
             document.getElementById('loading-screen').style.display = 'none';
         }
     </script>
-
-    <!-- 引入数据 -->
-    <script src="data/courseData.js"></script>
-    <!-- 引入主应用逻辑 -->
-    <script src="js/app.js"></script>
 </body>
 </html>
