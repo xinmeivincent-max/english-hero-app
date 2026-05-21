@@ -2949,38 +2949,36 @@ class EnglishHeroApp {
         
         const correct = this.selectedWord.dataset.correct;
         const feedbackEl = document.getElementById('analysis-feedback');
+        const originalText = this.selectedWord.textContent.replace(/ [✅❌]$/, ''); // 移除之前的图标
         
         if (type === correct) {
             this.playSound('correct');
             this.selectedWord.classList.add('correct');
             this.selectedWord.classList.remove('selected');
+            this.selectedWord.textContent = originalText + ' ✅';
             this.addXP(10);
             this.updateTaskProgress('sentence');
             
-            // 显示正确反馈 - 在单词旁边显示✅
-            this.selectedWord.innerHTML += ' ✅';
-            
             if (feedbackEl) {
-                feedbackEl.innerHTML = `<div style="color: #4CAF50; font-weight: bold; padding: 10px; background: #E8F5E9; border-radius: 8px; margin-top: 10px; text-align: center; font-size: 18px;">
+                feedbackEl.innerHTML = `<div style="color: #4CAF50; font-weight: bold; padding: 15px; background: #E8F5E9; border-radius: 8px; margin-top: 10px; text-align: center; font-size: 20px;">
                     ✅ 回答正确！
                 </div>`;
             }
         } else {
             this.playSound('wrong');
             this.selectedWord.classList.add('wrong');
-            
-            // 显示错误反馈 - 在单词旁边显示❌
-            this.selectedWord.innerHTML += ' ❌';
+            this.selectedWord.textContent = originalText + ' ❌';
             
             if (feedbackEl) {
-                feedbackEl.innerHTML = `<div style="color: #f44336; font-weight: bold; padding: 10px; background: #FFEBEE; border-radius: 8px; margin-top: 10px; text-align: center; font-size: 18px;">
+                feedbackEl.innerHTML = `<div style="color: #f44336; font-weight: bold; padding: 15px; background: #FFEBEE; border-radius: 8px; margin-top: 10px; text-align: center; font-size: 20px;">
                     ❌ 回答错误！正确答案是：${correct}
                 </div>`;
             }
             
             setTimeout(() => {
                 this.selectedWord.classList.remove('wrong');
-            }, 1500);
+                this.selectedWord.textContent = originalText;
+            }, 2000);
         }
         
         this.selectedWord = null;
