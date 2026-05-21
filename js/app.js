@@ -1022,45 +1022,64 @@ class EnglishHeroApp {
     }
     
     renderReadingContent = () => {
-        const levels = document.getElementById('reading-levels');
-        const content = document.getElementById('reading-content');
-        
-        if (!this.currentReading) return;
-        
-        // 确保 content 元素存在
-        if (!content) {
-            console.error('reading-content 元素不存在');
-            return;
-        }
-        
-        // 隐藏列表，显示内容
-        if (levels) levels.style.display = 'none';
-        content.style.display = 'block';
-        content.classList.add('active');
-        
-        // 确保 content 可见（可能被 CSS 隐藏）
-        content.style.visibility = 'visible';
-        content.style.opacity = '1';
-        
-        // 更新标题
-        const title = document.getElementById('passage-title');
-        if (title) {
-            title.innerHTML = `${this.currentReading.title}<br><small style="color: var(--text-secondary);">${this.currentReading.subtitle}</small>`;
-        }
-        
-        // 更新文章内容
-        const text = document.getElementById('passage-text');
-        if (text) {
-            text.innerHTML = this.formatPassage(this.currentReading.content);
-        }
-        
-        // 显示第一题
-        this.renderReadingQuestion();
-        
-        // 添加返回按钮
-        const backBtn = document.querySelector('#page-reading .page-header h2');
-        if (backBtn) {
-            backBtn.innerHTML = `<span onclick="app.backToReadingList()" style="cursor: pointer;">← 返回列表</span> 📖 ${this.currentReading.title}`;
+        try {
+            const levels = document.getElementById('reading-levels');
+            const content = document.getElementById('reading-content');
+            
+            if (!this.currentReading) {
+                console.error('currentReading 不存在');
+                return;
+            }
+            
+            // 确保 content 元素存在
+            if (!content) {
+                console.error('reading-content 元素不存在');
+                return;
+            }
+            
+            // 隐藏列表，显示内容
+            if (levels) levels.style.display = 'none';
+            content.style.display = 'block';
+            content.classList.add('active');
+            
+            // 确保 content 可见（可能被 CSS 隐藏）
+            content.style.visibility = 'visible';
+            content.style.opacity = '1';
+            
+            // 更新标题
+            const title = document.getElementById('passage-title');
+            if (title) {
+                title.innerHTML = `${this.currentReading.title || '无标题'}<br><small style="color: var(--text-secondary);">${this.currentReading.subtitle || ''}</small>`;
+            }
+            
+            // 更新文章内容
+            const text = document.getElementById('passage-text');
+            if (text) {
+                if (this.currentReading.content) {
+                    text.innerHTML = this.formatPassage(this.currentReading.content);
+                } else {
+                    text.innerHTML = '<p>文章内容加载失败</p>';
+                }
+            }
+            
+            // 显示第一题
+            if (this.currentReading.questions && this.currentReading.questions.length > 0) {
+                this.renderReadingQuestion();
+            } else {
+                const questionsContainer = document.getElementById('passage-questions');
+                if (questionsContainer) {
+                    questionsContainer.innerHTML = '<p>暂无题目</p>';
+                }
+            }
+            
+            // 添加返回按钮
+            const backBtn = document.querySelector('#page-reading .page-header h2');
+            if (backBtn) {
+                backBtn.innerHTML = `<span onclick="app.backToReadingList()" style="cursor: pointer;">← 返回列表</span> 📖 ${this.currentReading.title || '阅读'}`;
+            }
+        } catch (error) {
+            console.error('renderReadingContent 错误:', error);
+            alert('加载文章内容时出错: ' + error.message);
         }
     }
     
