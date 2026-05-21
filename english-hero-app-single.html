@@ -1573,28 +1573,31 @@ input[type="text"]:focus, textarea:focus {
                 </div>
             </section>
 
-            <!-- 阅读闯关页面 -->
+            <!-- 阅读理解页面 -->
             <section id="page-reading" class="page">
                 <div class="page-header">
                     <button class="back-btn" onclick="app.navigate('home')">← 返回</button>
-                    <h2>📖 阅读闯关</h2>
+                    <h2>📖 阅读理解</h2>
                 </div>
-                <!-- 单元选择下拉菜单 -->
+                <!-- 单元选择 -->
                 <div style="margin: 10px 0; text-align: center;">
-                    <select id="reading-unit-select" onchange="app.jumpToReadingUnit(this.value)" 
-                            style="padding: 10px 15px; font-size: 16px; border: 2px solid var(--primary); border-radius: 8px; background: white; cursor: pointer;">
-                        <option value="">📍 选择单元跳转...</option>
+                    <select id="reading-unit-select" onchange="app.selectReadingUnit(this.value)" 
+                            style="padding: 10px 15px; font-size: 16px; border: 2px solid var(--primary); border-radius: 8px; background: white; cursor: pointer; width: 90%; max-width: 400px;">
+                        <option value="">📍 选择单元...</option>
                     </select>
                 </div>
-                <!-- 文章列表 -->
-                <div class="reading-levels" id="reading-levels"></div>
-                <!-- 文章内容（默认隐藏）-->
-                <div class="reading-content" id="reading-content" style="display: none;">
-                    <div class="passage-area" id="passage-area">
-                        <h3 id="passage-title">选择一篇文章开始阅读</h3>
-                        <div class="passage-text" id="passage-text"></div>
-                        <div id="recording-ui"></div>
-                        <div class="passage-questions" id="passage-questions"></div>
+                <!-- 题目区域 -->
+                <div id="reading-quiz-area" style="padding: 15px;">
+                    <div id="reading-quiz-content" style="display: none;">
+                        <div class="question-card" style="background: white; padding: 20px; border-radius: 12px; margin-bottom: 16px; box-shadow: var(--shadow-sm);">
+                            <div id="quiz-question-text" style="font-size: 18px; font-weight: 700; margin-bottom: 20px; color: var(--text-primary);"></div>
+                            <div id="quiz-options" style="display: flex; flex-direction: column; gap: 10px;"></div>
+                        </div>
+                        <div id="quiz-progress" style="text-align: center; color: var(--text-secondary); margin: 15px 0;"></div>
+                    </div>
+                    <div id="reading-quiz-empty" style="text-align: center; padding: 40px 20px; color: var(--text-secondary);">
+                        <div style="font-size: 48px; margin-bottom: 16px;">📚</div>
+                        <p>请选择一个单元开始做题</p>
                     </div>
                 </div>
             </section>
@@ -4604,214 +4607,99 @@ class EnglishHeroApp {
         this.selectedWord = null;
     }
 
-    // ========== 阅读理解 ==========
-        // ========== 阅读理解 (新数据结构) ==========
+    // ========== 阅读理解（纯做题模式） ==========
     renderReading() {
-        const levels = document.getElementById('reading-levels');
-        const content = document.getElementById('reading-content');
-        if (!levels) return;
-        
-        // 更新阅读页面单元选择下拉菜单 - 显示所有单元
-        this.updateReadingUnitDropdown();
-        
-        // 显示所有单元的所有文章
-        let html = '';
-        this.data.readingPassages.units.forEach(unitData => {
-            if (unitData.articles && unitData.articles.length > 0) {
-                html += `<div style="margin: 15px 0 10px 0; padding: 10px; background: var(--primary-light); border-radius: 8px; font-weight: bold; color: var(--primary);">
-                    ${unitData.name} - ${unitData.theme}
-                </div>`;
-                
-                html += unitData.articles.map((article, index) => {
-                    const completed = this.state.completedReadings.includes(article.id);
-                    
-                    return `
-                        <div class="level-card ${completed ? 'completed' : ''}" onclick="(() => app.selectReading('${unitData.id}', ${index}))()">
-                            <div class="level-number">${unitData.id}-${index + 1}</div>
-                            <div class="level-info">
-                                <h4>${article.title}</h4>
-                                <p>${article.subtitle} · ${article.questions.length}题</p>
-                            </div>
-                            <div class="level-xp">+${100 + (index * 20)}XP</div>
-                        </div>
-                    `;
+        // 更新单元下拉菜单
+        const dropdown = document.getElementById('reading-unit-select');
+        if (dropdown) {
+            dropdown.innerHTML = '<option value="">📍 选择单元...</option>' + 
+                this.data.readingPassages.units.map((unit, index) => {
+                    return `<option value="${unit.id}">${unit.name} - ${unit.theme}</option>`;
                 }).join('');
+        }
+        
+        // 重置显示
+        const quizContent = document.getElementById('reading-quiz-content');
+        const quizEmpty = document.getElementById('reading-quiz-empty');
+        if (quizContent) quizContent.style.display = 'none';
+        if (quizEmpty) quizEmpty.style.display = 'block';
+    }
+    
+    selectReadingUnit(unitId) {
+        if (!unitId) return;
+        
+        const unitData = this.data.readingPassages.units.find(u => u.id === unitId);
+        if (!unitData || !unitData.articles || unitData.articles.length === 0) {
+            alert('该单元暂无题目');
+            return;
+        }
+        
+        // 获取该单元所有题目
+        this.currentUnitQuestions = [];
+        unitData.articles.forEach(article => {
+            if (article.questions) {
+                article.questions.forEach((q, idx) => {
+                    this.currentUnitQuestions.push({
+                        ...q,
+                        articleTitle: article.title,
+                        articleId: article.id,
+                        questionIndex: idx
+                    });
+                });
             }
         });
         
-        if (html === '') {
-            html = `<div style="text-align: center; padding: 20px; color: var(--text-secondary);">
-                暂无阅读文章
-            </div>`;
+        if (this.currentUnitQuestions.length === 0) {
+            alert('该单元暂无题目');
+            return;
         }
         
-        levels.innerHTML = html;
-        
-        // 默认显示1A文章内容（用于测试）
-        const unit1A = this.data.readingPassages.units.find(u => u.id === '1A');
-        if (unit1A && unit1A.articles && unit1A.articles.length > 0) {
-            this.currentReading = unit1A.articles[0];
-            this.currentReadingUnit = '1A';
-            this.currentQuestionIndex = 0;
-            this.readingAnswers = [];
-            this.readingStartTime = Date.now();
-            this.renderReadingContent();
-        } else {
-            // 如果找不到1A文章，显示列表
-            if (levels) levels.style.display = 'block';
-            if (content) content.style.display = 'none';
-        }
-    }
-    
-    selectReading = (unitId, articleIndex) => {
-        const unitData = this.data.readingPassages.units.find(u => u.id === unitId);
-        if (!unitData || !unitData.articles[articleIndex]) return;
-        
-        this.currentReading = unitData.articles[articleIndex];
-        this.currentReadingUnit = unitId;
         this.currentQuestionIndex = 0;
         this.readingAnswers = [];
-        this.readingStartTime = Date.now();
-        this.renderReadingContent();
+        this.currentUnitId = unitId;
+        
+        // 显示题目区域
+        const quizContent = document.getElementById('reading-quiz-content');
+        const quizEmpty = document.getElementById('reading-quiz-empty');
+        if (quizContent) quizContent.style.display = 'block';
+        if (quizEmpty) quizEmpty.style.display = 'none';
+        
+        this.renderQuizQuestion();
     }
     
-    renderReadingContent = () => {
-        try {
-            const levels = document.getElementById('reading-levels');
-            const content = document.getElementById('reading-content');
-            
-            if (!this.currentReading) {
-                console.error('currentReading 不存在');
-                return;
-            }
-            
-            // 确保 content 元素存在
-            if (!content) {
-                console.error('reading-content 元素不存在');
-                return;
-            }
-            
-            // 隐藏列表，显示内容
-            if (levels) levels.style.display = 'none';
-            content.style.display = 'block';
-            content.classList.add('active');
-            
-            // 确保 content 可见（可能被 CSS 隐藏）
-            content.style.visibility = 'visible';
-            content.style.opacity = '1';
-            
-            // 更新标题
-            const title = document.getElementById('passage-title');
-            if (title) {
-                title.innerHTML = `${this.currentReading.title || '无标题'}<br><small style="color: var(--text-secondary);">${this.currentReading.subtitle || ''}</small>`;
-            }
-            
-            // 更新文章内容
-            const text = document.getElementById('passage-text');
-            if (text) {
-                if (this.currentReading.content) {
-                    text.innerHTML = this.formatPassage(this.currentReading.content);
-                } else {
-                    text.innerHTML = '<p>文章内容加载失败</p>';
-                }
-            }
-            
-            // 显示第一题
-            if (this.currentReading.questions && this.currentReading.questions.length > 0) {
-                this.renderReadingQuestion();
-            } else {
-                const questionsContainer = document.getElementById('passage-questions');
-                if (questionsContainer) {
-                    questionsContainer.innerHTML = '<p>暂无题目</p>';
-                }
-            }
-            
-            // 添加返回按钮
-            const backBtn = document.querySelector('#page-reading .page-header h2');
-            if (backBtn) {
-                backBtn.innerHTML = `<span onclick="app.backToReadingList()" style="cursor: pointer;">← 返回列表</span> 📖 ${this.currentReading.title || '阅读'}`;
-            }
-        } catch (error) {
-            console.error('renderReadingContent 错误:', error);
-            alert('加载文章内容时出错: ' + error.message);
+    renderQuizQuestion() {
+        const questionText = document.getElementById('quiz-question-text');
+        const quizOptions = document.getElementById('quiz-options');
+        const quizProgress = document.getElementById('quiz-progress');
+        
+        if (!this.currentUnitQuestions || this.currentUnitQuestions.length === 0) return;
+        
+        const question = this.currentUnitQuestions[this.currentQuestionIndex];
+        
+        if (questionText) {
+            questionText.innerHTML = `<span style="color: var(--primary); font-size: 14px;">[${question.articleTitle}]</span><br>
+                ${this.currentQuestionIndex + 1}. ${question.question}`;
+        }
+        
+        if (quizOptions) {
+            quizOptions.innerHTML = question.options.map((option, i) => `
+                <button class="question-option" onclick="app.answerQuizQuestion(${i})" 
+                    style="padding: 15px; border: 2px solid #e0e0e0; border-radius: 10px; background: white; 
+                           cursor: pointer; text-align: left; font-size: 16px; transition: all 0.2s;"
+                    onmouseover="this.style.borderColor='var(--primary)'" 
+                    onmouseout="this.style.borderColor='#e0e0e0'">
+                    <strong>${String.fromCharCode(65 + i)}.</strong> ${option}
+                </button>
+            `).join('');
+        }
+        
+        if (quizProgress) {
+            quizProgress.textContent = `第 ${this.currentQuestionIndex + 1} / ${this.currentUnitQuestions.length} 题`;
         }
     }
     
-    backToReadingList = () => {
-        const levels = document.getElementById('reading-levels');
-        const content = document.getElementById('reading-content');
-        
-        if (levels) levels.style.display = 'block';
-        if (content) {
-            content.style.display = 'none';
-            content.classList.remove('active');
-        }
-        
-        // 恢复标题
-        const backBtn = document.querySelector('#page-reading .page-header h2');
-        if (backBtn) {
-            backBtn.innerHTML = '📖 阅读闯关';
-        }
-        
-        this.currentReading = null;
-        this.renderReading();
-    }
-    
-    updateReadingUnitDropdown() {
-        const dropdown = document.getElementById('reading-unit-select');
-        if (!dropdown) return;
-        
-        // 下拉菜单显示所有单元
-        dropdown.innerHTML = '<option value="">📍 选择单元跳转...</option>' + 
-            this.data.readingPassages.units.map((unit, index) => {
-                return `<option value="${index}">${unit.name} - ${unit.theme}</option>`;
-            }).join('');
-    }
-    
-    jumpToReadingUnit(index) {
-        if (index === '' || index === null || index === undefined) return;
-        
-        const unitData = this.data.readingPassages.units[index];
-        if (!unitData) return;
-        
-        // 滚动到对应单元
-        const levels = document.getElementById('reading-levels');
-        if (levels) {
-            const unitHeaders = levels.querySelectorAll('div[style*="background: var(--primary-light)"]');
-            if (unitHeaders[index]) {
-                unitHeaders[index].scrollIntoView({ behavior: 'smooth', block: 'start' });
-            }
-        }
-    }
-    
-    formatPassage(content) {
-        return content.split('\n\n').map(para => `<p style="margin-bottom: 12px; line-height: 1.6;">${para}</p>`).join('');
-    }
-
-    renderReadingQuestion() {
-        const questionsContainer = document.getElementById('passage-questions');
-        if (!questionsContainer) return;
-        
-        const question = this.currentReading.questions[this.currentQuestionIndex];
-        
-        questionsContainer.innerHTML = `
-            <div class="question-card">
-                <div class="question-text">
-                    ${this.currentQuestionIndex + 1}. ${question.question}
-                </div>
-                <div class="question-options">
-                    ${question.options.map((option, i) => `
-                        <button class="question-option" onclick="app.answerReadingQuestion(${i})">
-                            ${String.fromCharCode(97 + i)}. ${option}
-                        </button>
-                    `).join('')}
-                </div>
-            </div>
-        `;
-    }
-
-    answerReadingQuestion(answerIndex) {
-        const question = this.currentReading.questions[this.currentQuestionIndex];
+    answerQuizQuestion(answerIndex) {
+        const question = this.currentUnitQuestions[this.currentQuestionIndex];
         const correct = answerIndex === question.answer;
         
         this.readingAnswers.push({
@@ -4819,13 +4707,25 @@ class EnglishHeroApp {
             userAnswer: question.options[answerIndex],
             correctAnswer: question.options[question.answer],
             correct: correct,
-            explanation: question.explanation
+            articleTitle: question.articleTitle
         });
         
         // 显示正确/错误
-        const options = document.querySelectorAll('.question-option');
-        options[answerIndex].classList.add(correct ? 'correct' : 'wrong');
-        options[question.answer].classList.add('correct');
+        const options = document.querySelectorAll('#quiz-options .question-option');
+        if (options[answerIndex]) {
+            options[answerIndex].style.borderColor = correct ? 'var(--success)' : 'var(--danger)';
+            options[answerIndex].style.background = correct ? '#E8F5E9' : '#FFEBEE';
+        }
+        if (options[question.answer]) {
+            options[question.answer].style.borderColor = 'var(--success)';
+            options[question.answer].style.background = '#E8F5E9';
+        }
+        
+        // 禁用所有按钮
+        options.forEach(btn => {
+            btn.disabled = true;
+            btn.style.cursor = 'default';
+        });
         
         this.state.totalQuestions++;
         if (correct) {
@@ -4833,15 +4733,6 @@ class EnglishHeroApp {
             this.state.totalCorrect++;
         } else {
             this.playSound('wrong');
-            // 添加到错题本
-            this.state.mistakes.push({
-                type: 'reading',
-                question: question.question,
-                userAnswer: question.options[answerIndex],
-                correctAnswer: question.options[question.answer],
-                explanation: question.explanation,
-                date: new Date().toISOString()
-            });
         }
         
         this.saveState();
@@ -4850,93 +4741,58 @@ class EnglishHeroApp {
         setTimeout(() => {
             this.currentQuestionIndex++;
             
-            if (this.currentQuestionIndex < this.currentReading.questions.length) {
-                this.renderReadingQuestion();
+            if (this.currentQuestionIndex < this.currentUnitQuestions.length) {
+                this.renderQuizQuestion();
             } else {
-                this.showReadingResult();
+                this.showQuizResult();
             }
         }, 1500);
     }
-
-    showReadingResult() {
+    
+    showQuizResult() {
         const correctCount = this.readingAnswers.filter(a => a.correct).length;
-        const totalQuestions = this.currentReading.questions.length;
+        const totalQuestions = this.currentUnitQuestions.length;
         const accuracy = Math.round((correctCount / totalQuestions) * 100);
         
         // 计算XP
         let xpEarned = Math.round(100 * (accuracy / 100));
-        if (accuracy === 100) {
-            xpEarned += 20; // 满分奖励
-            this.checkAchievement('perfect_quiz');
-        }
+        if (accuracy === 100) xpEarned += 20;
         
         this.addXP(xpEarned);
-        this.updateTaskProgress('reading');
         
         // 标记完成
-        if (!this.state.completedReadings.includes(this.currentReading.id)) {
-            this.state.completedReadings.push(this.currentReading.id);
+        if (!this.state.completedReadings.includes(this.currentUnitId)) {
+            this.state.completedReadings.push(this.currentUnitId);
             this.state.totalReadings++;
         }
         
-        this.checkAchievement('first_unit');
-        this.checkAchievement('reading_hero');
         this.saveState();
-        
         this.playSound('complete');
         
-        // 计算能力分析数据
-        const readingScore = accuracy;
-        const vocabScore = Math.min(100, this.state.totalWordsLearned * 5);
-        const grammarScore = Math.min(100, this.state.completedPatterns.length * 10);
-        const streakScore = Math.min(100, this.state.streak * 10);
-        
-        // 显示结果 + 能力分析
-        const questionsContainer = document.getElementById('passage-questions');
-        questionsContainer.innerHTML = `
-            <div style="text-align: center;">
-                <div style="font-size: 60px; margin-bottom: 16px;">${accuracy >= 80 ? '🎉' : accuracy >= 60 ? '👍' : '💪'}</div>
-                <div class="ability-result">
-                    <h2>🎯 闯关完成！</h2>
-                    <p style="font-size: 20px; font-weight: 700; margin-bottom: 8px;">
+        // 显示结果
+        const quizContent = document.getElementById('reading-quiz-content');
+        if (quizContent) {
+            quizContent.innerHTML = `
+                <div style="text-align: center; padding: 30px 20px;">
+                    <div style="font-size: 60px; margin-bottom: 16px;">${accuracy >= 80 ? '🎉' : accuracy >= 60 ? '👍' : '💪'}</div>
+                    <h2>🎯 答题完成！</h2>
+                    <p style="font-size: 24px; font-weight: 700; margin: 16px 0;">
                         ${correctCount}/${totalQuestions} 正确 (${accuracy}%)
                     </p>
-                    <p style="color: var(--text-secondary); margin-bottom: 20px;">
+                    <p style="color: var(--text-secondary); margin-bottom: 24px;">
                         获得 ${xpEarned} XP
                     </p>
-                    
-                    <h3 style="font-size: 22px; margin: 24px 0 16px;">📊 能力分析</h3>
-                    <div class="ability-chart">
-                        <div class="ability-item">
-                            <div class="ability-name">📖 阅读理解</div>
-                            <div class="ability-score">${readingScore}分</div>
-                            <div class="ability-bar"><div class="ability-bar-fill" style="width: ${readingScore}%"></div></div>
-                        </div>
-                        <div class="ability-item">
-                            <div class="ability-name">📝 词汇掌握</div>
-                            <div class="ability-score">${vocabScore}分</div>
-                            <div class="ability-bar"><div class="ability-bar-fill" style="width: ${vocabScore}%"></div></div>
-                        </div>
-                        <div class="ability-item">
-                            <div class="ability-name">🔤 语法分析</div>
-                            <div class="ability-score">${grammarScore}分</div>
-                            <div class="ability-bar"><div class="ability-bar-fill" style="width: ${grammarScore}%"></div></div>
-                        </div>
-                        <div class="ability-item">
-                            <div class="ability-name">🔥 学习连续</div>
-                            <div class="ability-score">${streakScore}分</div>
-                            <div class="ability-bar"><div class="ability-bar-fill" style="width: ${streakScore}%"></div></div>
-                        </div>
+                    <div style="background: white; padding: 20px; border-radius: 12px; margin: 20px 0; text-align: left;">
+                        ${this.readingAnswers.map((a, i) => `
+                            <div style="padding: 10px 0; border-bottom: 1px solid #eee; ${a.correct ? '' : 'color: var(--danger);'}">
+                                ${i + 1}. ${a.correct ? '✅' : '❌'} ${a.question.substring(0, 30)}...
+                            </div>
+                        `).join('')}
                     </div>
-                    
-                    <p style="font-size: 18px; color: var(--text-secondary); margin: 16px 0;">
-                        ${accuracy >= 80 ? '太棒了！你的阅读能力很强！' : accuracy >= 60 ? '不错！继续加油！' : '再接再厉，多练习会进步的！'}
-                    </p>
+                    <button class="btn-primary" onclick="app.navigate('reading')" style="margin-top: 20px;">继续做题</button>
                 </div>
-                
-                <button class="btn-primary" onclick="app.navigate('reading')" style="margin-top: 20px;">继续闯关</button>
-            </div>
-        `;
+            `;
+        }
     }
 
     // ========== 游戏中心 ==========

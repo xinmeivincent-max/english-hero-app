@@ -189,28 +189,31 @@
                 </div>
             </section>
 
-            <!-- 阅读闯关页面 -->
+            <!-- 阅读理解页面 -->
             <section id="page-reading" class="page">
                 <div class="page-header">
                     <button class="back-btn" onclick="app.navigate('home')">← 返回</button>
-                    <h2>📖 阅读闯关</h2>
+                    <h2>📖 阅读理解</h2>
                 </div>
-                <!-- 单元选择下拉菜单 -->
+                <!-- 单元选择 -->
                 <div style="margin: 10px 0; text-align: center;">
-                    <select id="reading-unit-select" onchange="app.jumpToReadingUnit(this.value)" 
-                            style="padding: 10px 15px; font-size: 16px; border: 2px solid var(--primary); border-radius: 8px; background: white; cursor: pointer;">
-                        <option value="">📍 选择单元跳转...</option>
+                    <select id="reading-unit-select" onchange="app.selectReadingUnit(this.value)" 
+                            style="padding: 10px 15px; font-size: 16px; border: 2px solid var(--primary); border-radius: 8px; background: white; cursor: pointer; width: 90%; max-width: 400px;">
+                        <option value="">📍 选择单元...</option>
                     </select>
                 </div>
-                <!-- 文章列表 -->
-                <div class="reading-levels" id="reading-levels"></div>
-                <!-- 文章内容（默认隐藏）-->
-                <div class="reading-content" id="reading-content" style="display: none;">
-                    <div class="passage-area" id="passage-area">
-                        <h3 id="passage-title">选择一篇文章开始阅读</h3>
-                        <div class="passage-text" id="passage-text"></div>
-                        <div id="recording-ui"></div>
-                        <div class="passage-questions" id="passage-questions"></div>
+                <!-- 题目区域 -->
+                <div id="reading-quiz-area" style="padding: 15px;">
+                    <div id="reading-quiz-content" style="display: none;">
+                        <div class="question-card" style="background: white; padding: 20px; border-radius: 12px; margin-bottom: 16px; box-shadow: var(--shadow-sm);">
+                            <div id="quiz-question-text" style="font-size: 18px; font-weight: 700; margin-bottom: 20px; color: var(--text-primary);"></div>
+                            <div id="quiz-options" style="display: flex; flex-direction: column; gap: 10px;"></div>
+                        </div>
+                        <div id="quiz-progress" style="text-align: center; color: var(--text-secondary); margin: 15px 0;"></div>
+                    </div>
+                    <div id="reading-quiz-empty" style="text-align: center; padding: 40px 20px; color: var(--text-secondary);">
+                        <div style="font-size: 48px; margin-bottom: 16px;">📚</div>
+                        <p>请选择一个单元开始做题</p>
                     </div>
                 </div>
             </section>
