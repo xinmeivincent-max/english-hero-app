@@ -443,7 +443,59 @@ class EnglishHeroApp {
             </button>
         `).join('');
         
+        // 更新下拉菜单选项
+        this.updateUnitDropdown();
+        
         this.renderFlashcard();
+    }
+    
+    updateUnitDropdown() {
+        const dropdown = document.getElementById('unit-select-dropdown');
+        if (!dropdown) return;
+        
+        // 保存当前选择
+        const currentValue = dropdown.value;
+        
+        // 重新生成选项
+        let options = '<option value="">📍 选择单元跳转...</option>';
+        this.data.vocabulary.forEach((unit, index) => {
+            const isCurrent = index === this.currentUnit;
+            options += `<option value="${index}" ${isCurrent ? 'selected' : ''}>${unit.unitName}${isCurrent ? ' (当前)' : ''}</option>`;
+        });
+        dropdown.innerHTML = options;
+        
+        // 恢复选择（如果不是空值）
+        if (currentValue) {
+            dropdown.value = currentValue;
+        }
+    }
+    
+    jumpToUnit(index) {
+        if (index === '' || index === null || index === undefined) return;
+        
+        index = parseInt(index);
+        if (isNaN(index) || index < 0 || index >= this.data.vocabulary.length) return;
+        
+        this.currentUnit = index;
+        this.currentWordIndex = 0;
+        
+        // 隐藏游戏区域
+        const wordGameArea = document.getElementById('word-game-area');
+        if (wordGameArea) wordGameArea.style.display = 'none';
+        
+        this.renderWords();
+        
+        // 显示跳转成功提示
+        const unit = this.data.vocabulary[index];
+        const feedbackEl = document.getElementById('analysis-feedback');
+        if (feedbackEl) {
+            feedbackEl.innerHTML = `<div style="color: #4CAF50; font-weight: bold; padding: 10px; background: #E8F5E9; border-radius: 8px; margin-top: 10px; text-align: center;">
+                ✅ 已跳转到 ${unit.unitName}
+            </div>`;
+            setTimeout(() => {
+                feedbackEl.innerHTML = '';
+            }, 2000);
+        }
     }
 
     selectUnit(index) {
@@ -684,13 +736,14 @@ class EnglishHeroApp {
         
         const correct = this.selectedWord.dataset.correct;
         const feedbackEl = document.getElementById('analysis-feedback');
-        const originalText = this.selectedWord.textContent.replace(/ [✅❌]$/, ''); // 移除之前的图标
+        const selectedWord = this.selectedWord; // 保存引用
+        const originalText = selectedWord.textContent.replace(/ [✅❌]$/, ''); // 移除之前的图标
         
         if (type === correct) {
             this.playSound('correct');
-            this.selectedWord.classList.add('correct');
-            this.selectedWord.classList.remove('selected');
-            this.selectedWord.textContent = originalText + ' ✅';
+            selectedWord.classList.add('correct');
+            selectedWord.classList.remove('selected');
+            selectedWord.textContent = originalText + ' ✅';
             this.addXP(10);
             this.updateTaskProgress('sentence');
             
@@ -701,8 +754,8 @@ class EnglishHeroApp {
             }
         } else {
             this.playSound('wrong');
-            this.selectedWord.classList.add('wrong');
-            this.selectedWord.textContent = originalText + ' ❌';
+            selectedWord.classList.add('wrong');
+            selectedWord.textContent = originalText + ' ❌';
             
             if (feedbackEl) {
                 feedbackEl.innerHTML = `<div style="color: #f44336; font-weight: bold; padding: 15px; background: #FFEBEE; border-radius: 8px; margin-top: 10px; text-align: center; font-size: 20px;">
@@ -711,8 +764,8 @@ class EnglishHeroApp {
             }
             
             setTimeout(() => {
-                this.selectedWord.classList.remove('wrong');
-                this.selectedWord.textContent = originalText;
+                selectedWord.classList.remove('wrong');
+                selectedWord.textContent = originalText;
             }, 2000);
         }
         
@@ -904,7 +957,227 @@ class EnglishHeroApp {
         document.getElementById('speed-best').textContent = this.state.gameScores.speed || '--';
     }
 
-    // 记忆游戏 - 直接显示，点击配对
+    // 在单词页面启动记忆游戏
+    startMemoryGameInWordPage() {
+        const wordGameArea = document.getElementById('word-game-area');
+        if (!wordGameArea) return;
+        
+        wordGameArea.style.display = 'block';
+        wordGameArea.scrollIntoView({ behavior: 'smooth' });
+        
+        // 选择当前单元的单词
+        const unit = this.data.vocabulary[this.currentUnit];
+        const selectedWords = unit.words.slice(0, 6);
+        
+        // 创建卡片对（单词-意思）
+        let cards = [];
+        selectedWords.forEach((word, i) => {
+            cards.push({ id: i * 2, type: 'word', content: word.word, pair: i });
+            cards.push({ id: i * 2 + 1, type: 'meaning', content: word.meaning, pair: i });
+        });
+        
+        cards = this.shuffleArray(cards);
+        
+        this.gameState = {
+            type: 'memory',
+            cards: cards,
+            selected: [],
+            matched: [],
+            moves: 0,
+            startTime: Date.now()
+        };
+        
+        this.renderMemoryGameInWordPage();
+    }
+    
+    renderMemoryGameInWordPage() {
+        const wordGameArea = document.getElementById('word-game-area');
+        
+        wordGameArea.innerHTML = `
+            <div style="text-align: center; margin-bottom: 16px;">
+                <div class="game-score">🧠 单词配对</div>
+                <div>步数: <span id="memory-moves-word">0</span></div>
+                <div style="font-size: 12px; color: var(--text-secondary); margin-top: 4px;">点击英文单词和对应的中文意思进行配对</div>
+            </div>
+            <div class="memory-grid" id="memory-grid-word"></div>
+        `;
+        
+        const grid = document.getElementById('memory-grid-word');
+        grid.innerHTML = this.gameState.cards.map((card, index) => {
+            const isMatched = this.gameState.matched.includes(card.pair);
+            const isSelected = this.gameState.selected.includes(index);
+            
+            return `
+            <button class="memory-card ${isMatched ? 'matched' : ''} ${isSelected ? 'selected' : ''}" 
+                    onclick="app.selectMemoryCardInWordPage(${index})"
+                    ${isMatched ? 'disabled' : ''}>
+                <span style="font-size: ${card.type === 'word' ? '16px' : '14px'}; font-weight: ${card.type === 'word' ? '700' : '600'};">${card.content}</span>
+            </button>
+        `}).join('');
+    }
+    
+    selectMemoryCardInWordPage(index) {
+        // 如果已经选了2个，或者点击已选中的，返回
+        if (this.gameState.selected.length >= 2) return;
+        if (this.gameState.selected.includes(index)) return;
+        
+        this.gameState.selected.push(index);
+        this.renderMemoryGameInWordPage();
+        
+        if (this.gameState.selected.length === 2) {
+            this.gameState.moves++;
+            document.getElementById('memory-moves-word').textContent = this.gameState.moves;
+            
+            const card1 = this.gameState.cards[this.gameState.selected[0]];
+            const card2 = this.gameState.cards[this.gameState.selected[1]];
+            
+            if (card1.pair === card2.pair) {
+                // 配对成功
+                this.gameState.matched.push(card1.pair);
+                this.playSound('match');
+                this.gameState.selected = [];
+                this.renderMemoryGameInWordPage();
+                
+                // 检查是否全部配对
+                if (this.gameState.matched.length === this.gameState.cards.length / 2) {
+                    const time = Math.floor((Date.now() - this.gameState.startTime) / 1000);
+                    const wordGameArea = document.getElementById('word-game-area');
+                    wordGameArea.innerHTML += `
+                        <div style="text-align: center; margin-top: 20px; padding: 20px; background: #E8F5E9; border-radius: 12px;">
+                            <div style="font-size: 48px; margin-bottom: 10px;">🎉</div>
+                            <h3>恭喜完成！</h3>
+                            <p>用时: ${time}秒 | 步数: ${this.gameState.moves}</p>
+                            <button class="btn-primary" onclick="app.startMemoryGameInWordPage()" style="margin-top: 10px;">再玩一次</button>
+                            <button class="btn-secondary" onclick="document.getElementById('word-game-area').style.display='none'" style="margin-top: 10px; margin-left: 10px;">关闭</button>
+                        </div>
+                    `;
+                    
+                    // 更新最佳成绩
+                    if (!this.state.gameScores.memory || this.gameState.moves < this.state.gameScores.memory) {
+                        this.state.gameScores.memory = this.gameState.moves;
+                        this.saveState();
+                    }
+                }
+            } else {
+                // 配对失败，1秒后重置
+                setTimeout(() => {
+                    this.gameState.selected = [];
+                    this.renderMemoryGameInWordPage();
+                }, 1000);
+            }
+        }
+    }
+
+    // 在单词页面启动拼写游戏
+    startSpellingGameInWordPage() {
+        const wordGameArea = document.getElementById('word-game-area');
+        if (!wordGameArea) return;
+        
+        wordGameArea.style.display = 'block';
+        wordGameArea.scrollIntoView({ behavior: 'smooth' });
+        
+        // 使用当前单元的单词
+        const unit = this.data.vocabulary[this.currentUnit];
+        const words = this.shuffleArray([...unit.words]).slice(0, 5);
+        
+        this.gameState = {
+            type: 'spelling',
+            words: words,
+            currentIndex: 0,
+            correct: 0,
+            answers: []
+        };
+        
+        this.renderSpellingGameInWordPage();
+    }
+    
+    renderSpellingGameInWordPage() {
+        const wordGameArea = document.getElementById('word-game-area');
+        const current = this.gameState.words[this.gameState.currentIndex];
+        
+        wordGameArea.innerHTML = `
+            <div style="text-align: center; margin-bottom: 16px;">
+                <div class="game-score">✍️ 拼写挑战</div>
+                <div>第 ${this.gameState.currentIndex + 1} / ${this.gameState.words.length} 题</div>
+            </div>
+            <div style="text-align: center; padding: 20px;">
+                <div style="font-size: 48px; margin-bottom: 10px;">${current.image}</div>
+                <div style="font-size: 18px; color: var(--text-secondary); margin-bottom: 10px;">${current.meaning}</div>
+                <div style="font-size: 14px; color: var(--text-secondary); margin-bottom: 20px;">音标: ${current.phonetic}</div>
+                <input type="text" id="spelling-input-word" 
+                       style="padding: 12px; font-size: 18px; border: 2px solid var(--primary); border-radius: 8px; text-align: center; width: 200px;"
+                       placeholder="输入英文单词" autocomplete="off">
+                <div style="margin-top: 16px;">
+                    <button class="btn-primary" onclick="app.checkSpellingInWordPage()">提交</button>
+                    <button class="btn-secondary" onclick="app.playWordSound()">🔊 听发音</button>
+                </div>
+                <div id="spelling-feedback-word" style="margin-top: 16px;"></div>
+            </div>
+        `;
+        
+        // 自动聚焦输入框
+        setTimeout(() => {
+            const input = document.getElementById('spelling-input-word');
+            if (input) input.focus();
+        }, 100);
+    }
+    
+    checkSpellingInWordPage() {
+        const input = document.getElementById('spelling-input-word');
+        const feedback = document.getElementById('spelling-feedback-word');
+        const current = this.gameState.words[this.gameState.currentIndex];
+        const answer = input.value.trim().toLowerCase();
+        
+        if (!answer) {
+            feedback.innerHTML = `<div style="color: #FF9800;">请输入单词</div>`;
+            return;
+        }
+        
+        const correct = answer === current.word.toLowerCase();
+        this.gameState.answers.push({ word: current.word, correct });
+        
+        if (correct) {
+            this.playSound('correct');
+            this.gameState.correct++;
+            feedback.innerHTML = `<div style="color: #4CAF50; font-weight: bold;">✅ 正确！</div>`;
+        } else {
+            this.playSound('wrong');
+            feedback.innerHTML = `<div style="color: #f44336; font-weight: bold;">❌ 错误！正确答案是: ${current.word}</div>`;
+        }
+        
+        // 2秒后下一题
+        setTimeout(() => {
+            this.gameState.currentIndex++;
+            if (this.gameState.currentIndex < this.gameState.words.length) {
+                this.renderSpellingGameInWordPage();
+            } else {
+                this.showSpellingResultInWordPage();
+            }
+        }, 2000);
+    }
+    
+    showSpellingResultInWordPage() {
+        const wordGameArea = document.getElementById('word-game-area');
+        const accuracy = Math.round((this.gameState.correct / this.gameState.words.length) * 100);
+        
+        wordGameArea.innerHTML = `
+            <div style="text-align: center; padding: 20px;">
+                <div style="font-size: 48px; margin-bottom: 10px;">${accuracy >= 80 ? '🎉' : accuracy >= 60 ? '👍' : '💪'}</div>
+                <h3>拼写挑战完成！</h3>
+                <p>正确: ${this.gameState.correct} / ${this.gameState.words.length} (${accuracy}%)</p>
+                <button class="btn-primary" onclick="app.startSpellingGameInWordPage()" style="margin-top: 10px;">再玩一次</button>
+                <button class="btn-secondary" onclick="document.getElementById('word-game-area').style.display='none'" style="margin-top: 10px; margin-left: 10px;">关闭</button>
+            </div>
+        `;
+        
+        // 更新最佳成绩
+        if (!this.state.gameScores.spelling || this.gameState.correct > this.state.gameScores.spelling) {
+            this.state.gameScores.spelling = this.gameState.correct;
+            this.saveState();
+        }
+    }
+
+    // 记忆游戏 - 游戏中心版本
     startMemoryGame() {
         const gameArea = document.getElementById('game-area');
         if (!gameArea) return;
