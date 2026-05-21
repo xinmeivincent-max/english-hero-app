@@ -2948,6 +2948,7 @@ class EnglishHeroApp {
         }
         
         const correct = this.selectedWord.dataset.correct;
+        const feedbackEl = document.getElementById('analysis-feedback');
         
         if (type === correct) {
             this.playSound('correct');
@@ -2955,12 +2956,27 @@ class EnglishHeroApp {
             this.selectedWord.classList.remove('selected');
             this.addXP(10);
             this.updateTaskProgress('sentence');
+            
+            // 显示正确反馈
+            if (feedbackEl) {
+                feedbackEl.innerHTML = `<div style="color: #4CAF50; font-weight: bold; padding: 10px; background: #E8F5E9; border-radius: 8px; margin-top: 10px;">
+                    ✅ 回答正确！+10 XP
+                </div>`;
+            }
         } else {
             this.playSound('wrong');
             this.selectedWord.classList.add('wrong');
+            
+            // 显示错误反馈和正确答案
+            if (feedbackEl) {
+                feedbackEl.innerHTML = `<div style="color: #f44336; font-weight: bold; padding: 10px; background: #FFEBEE; border-radius: 8px; margin-top: 10px;">
+                    ❌ 回答错误！正确答案是：${correct}
+                </div>`;
+            }
+            
             setTimeout(() => {
                 this.selectedWord.classList.remove('wrong');
-            }, 1000);
+            }, 1500);
         }
         
         this.selectedWord = null;
