@@ -4655,6 +4655,13 @@ class EnglishHeroApp {
         }
         
         levels.innerHTML = html;
+        
+        // 如果正在阅读文章，切换到阅读视图
+        if (this.currentReading) {
+            const content = document.getElementById('reading-content');
+            if (levels) levels.style.display = 'none';
+            if (content) content.style.display = 'block';
+        }
     }
     
     selectReading = (unitId, articleIndex) => {
