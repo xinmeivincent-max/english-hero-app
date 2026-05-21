@@ -171,6 +171,13 @@
                     <button class="back-btn" onclick="app.navigate('home')">← 返回</button>
                     <h2>🔍 句型分析</h2>
                 </div>
+                <!-- 单元选择下拉菜单 -->
+                <div style="margin: 10px 0; text-align: center;">
+                    <select id="sentence-unit-select" onchange="app.jumpToSentenceUnit(this.value)" 
+                            style="padding: 10px 15px; font-size: 16px; border: 2px solid var(--primary); border-radius: 8px; background: white; cursor: pointer;">
+                        <option value="">📍 选择单元跳转...</option>
+                    </select>
+                </div>
                 <div class="pattern-list" id="pattern-list"></div>
                 <div class="sentence-practice" id="sentence-practice">
                     <div class="practice-area" id="practice-area">
@@ -187,6 +194,13 @@
                 <div class="page-header">
                     <button class="back-btn" onclick="app.navigate('home')">← 返回</button>
                     <h2>📖 阅读闯关</h2>
+                </div>
+                <!-- 单元选择下拉菜单 -->
+                <div style="margin: 10px 0; text-align: center;">
+                    <select id="reading-unit-select" onchange="app.jumpToReadingUnit(this.value)" 
+                            style="padding: 10px 15px; font-size: 16px; border: 2px solid var(--primary); border-radius: 8px; background: white; cursor: pointer;">
+                        <option value="">📍 选择单元跳转...</option>
+                    </select>
                 </div>
                 <div class="reading-levels" id="reading-levels"></div>
                 <div class="reading-content" id="reading-content">
