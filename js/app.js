@@ -1036,6 +1036,7 @@ class EnglishHeroApp {
         // 隐藏列表，显示内容
         if (levels) levels.style.display = 'none';
         content.style.display = 'block';
+        content.classList.add('active');
         
         // 确保 content 可见（可能被 CSS 隐藏）
         content.style.visibility = 'visible';
@@ -1068,7 +1069,10 @@ class EnglishHeroApp {
         const content = document.getElementById('reading-content');
         
         if (levels) levels.style.display = 'block';
-        if (content) content.style.display = 'none';
+        if (content) {
+            content.style.display = 'none';
+            content.classList.remove('active');
+        }
         
         // 恢复标题
         const backBtn = document.querySelector('#page-reading .page-header h2');
